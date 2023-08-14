@@ -19,5 +19,4 @@ class PlatformGlobalTeacherCampusConfig(AppConfig):
                 'relative_path': 'urls',
             }
         },
-        
     }
