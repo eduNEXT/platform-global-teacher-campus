@@ -24,3 +24,10 @@ class ValidationProcess(models.Model):
 
     def __str__(self):
         return f"Validation Process for Course {self.courseid}"
+
+class ValidationBody(models.Model):
+    id = models.AutoField(primary_key=True)
+    validator = models.CharField(max_length=50)
+    name = models.CharField(max_length=100)
+    admin_notes = models.CharField(max_length=100)
+    organizations = models.CharField(max_length=50)
