@@ -3,11 +3,12 @@ Database models for platform_global_teacher_campus.
 """
 
 from django.db import models
+from edxapp_wrapper.courses import get_course_overview
 
+CourseOverview=get_course_overview()
 class CourseCategory(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
-    #parentCategory = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
     parentCategory = models.IntegerField()
 
     def __str__(self):
@@ -15,7 +16,7 @@ class CourseCategory(models.Model):
 
 class ValidationProcess(models.Model):
     id = models.AutoField(primary_key=True)
-    courseId = models.IntegerField()
+    courseId = models.ForeignKey(CourseOverview, on_delete=models.CASCADE)
     categories = models.ManyToManyField(CourseCategory)
     organizationId = models.IntegerField()
     currentValidationUserId = models.IntegerField()
