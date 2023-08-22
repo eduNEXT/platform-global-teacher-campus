@@ -3,8 +3,9 @@ URLs for platform_global_teacher_campus.
 """
 from django.urls import re_path  # pylint: disable=unused-import
 from django.views.generic import TemplateView  # pylint: disable=unused-import
+from platform_global_teacher_campus.views import ValidationBodyViewSet
+from django.conf.urls import url
 
 urlpatterns = [
-    # TODO: Fill in URL patterns and views here.
-    # re_path(r'', TemplateView.as_view(template_name="platform_global_teacher_campus/base.html")),
+    url(r'^validation_body/$', ValidationBodyViewSet.as_view(), name='validation_body'),
 ]
