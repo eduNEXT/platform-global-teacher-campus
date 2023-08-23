@@ -4,3 +4,5 @@ Settings for platform-global-teacher-campus
 
 def plugin_settings(settings):
     settings.CVW_COURSES_BACKEND = "platform_global_teacher_campus.backends.courses_v1"
+    settings.USER_MODEL_BACKEND = "platform_global_teacher_campus.backends.user_v1"
+    settings.ORGANIZATIONS_BACKEND = "platform_global_teacher_campus.backends.organization_v1"

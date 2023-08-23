@@ -5,52 +5,56 @@ Database models for platform_global_teacher_campus.
 from django.db import models
 from django import forms
 from edxapp_wrapper.courses import get_course_overview
+from edxapp_wrapper.users import get_user_model
+from edxapp_wrapper.organizations import get_organization_model
 
-CourseOverview=get_course_overview()
+CourseOverview = get_course_overview()
+User = get_user_model()
+Organization = get_organization_model()
 
 class CourseCategory(models.Model):
-    name = models.CharField()
-    parentCategory = models.IntegerField()
+    name = models.TextField()
+    parent_category = models.IntegerField()
 
     def __str__(self):
         return self.name
 
 
+class ValidationBody(models.Model):
+    validators = models.ManyToManyField(User)
+    name = models.TextField()()
+    admin_notes = models.TextField()
+    organizations = models.ManyToManyField(Organization)
+
+
 class ValidationProcess(models.Model):
-    courseId = models.OneToOneField(CourseOverview, on_delete=models.SET_NULL)
+    course = models.OneToOneField(CourseOverview, on_delete=models.SET_NULL, null=True)
     categories = models.ManyToManyField(CourseCategory)
-    organizationId = models.IntegerField()
-    currentValidationUserId = models.ForeignKey('Users', on_delete=models.SET_NULL, null=True)
-    validationBodyId = models.ForeignKey(ValidationBody, on_delete=models.SET_NULL, null=True)
+    organization = models.ForeignKey(Organization, on_delete=models.SET_NULL, null=True)
+    current_validation_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, default=None)
+    validation_body = models.ForeignKey(ValidationBody, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return f"Validation Process for Course {self.courseid}"
-
-
-class ValidationBody(models.Model):
-    validators = models.ManyToManyField('Users')
-    name = models.CharField()
-    adminNotes = models.CharField()
-    organizations = models.ManyToManyField('Organizations')
-
-
-class ValidationProcessEvent(models.Model):
-    validationProcessId = models.ForeignKey(ValidationProcess, on_delete=models.SET_NULL, null=True)
-    create_at = models.DateTimeField(auto_now_add=True)
-    status = forms.ChoiceField()
-    comment = models.TextField()
-    userId = models.ForeignKey('Users', on_delete=models.SET_NULL, null=True)
-    reasonId = models.ForeignKey(ValidationRejectionReason, on_delete=models.SET_NULL, null=True)
 
 
 class ValidationRejectionReason(models.Model):
     name = models.CharField()
 
 
+class ValidationProcessEvent(models.Model):
+    validation_process = models.ForeignKey(ValidationProcess, on_delete=models.SET_NULL, null=True)
+    create_at = models.DateTimeField(auto_now_add=True)
+    status = forms.ChoiceField() # ToDo: add list
+    comment = models.TextField()
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    reason = models.ForeignKey(ValidationRejectionReason, on_delete=models.SET_NULL, null=True, default=None)
+
+
 class ValidationRules(models.Model):
-    userId = models.OneToOneField(ValidationBody)
-    validationBodyId = models.IntegerField()
-    type = forms.ChoiceField()
-    adminNotes = models.TextField
-    organizationId = models.IntegerField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, default=None)
+    validation_body = models.ForeignKey(ValidationBody, on_delete=models.CASCADE, null=True, default=None)
+    permission_type = forms.ChoiceField()
+    admin_notes = models.TextField()
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, null=True, default=None)
     is_active = models.BooleanField()
