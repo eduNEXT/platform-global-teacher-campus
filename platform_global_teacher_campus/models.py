@@ -4,9 +4,9 @@ Database models for platform_global_teacher_campus.
 
 from django.db import models
 from django import forms
-from edxapp_wrapper.courses import get_course_overview
-from edxapp_wrapper.users import get_user_model
-from edxapp_wrapper.organizations import get_organization_model
+from platform_global_teacher_campus.edxapp_wrapper.courses import get_course_overview
+from platform_global_teacher_campus.edxapp_wrapper.users import get_user_model
+from platform_global_teacher_campus.edxapp_wrapper.organizations import get_organization_model
 
 CourseOverview = get_course_overview()
 User = get_user_model()
@@ -22,7 +22,7 @@ class CourseCategory(models.Model):
 
 class ValidationBody(models.Model):
     validators = models.ManyToManyField(User)
-    name = models.TextField()()
+    name = models.TextField()
     admin_notes = models.TextField()
     organizations = models.ManyToManyField(Organization)
 
@@ -39,7 +39,7 @@ class ValidationProcess(models.Model):
 
 
 class ValidationRejectionReason(models.Model):
-    name = models.CharField()
+    name = models.TextField()
 
 
 class ValidationProcessEvent(models.Model):
