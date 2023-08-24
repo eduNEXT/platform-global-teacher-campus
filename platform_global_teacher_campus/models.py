@@ -36,7 +36,7 @@ class ValidationProcess(models.Model):
     validation_body = models.ForeignKey(ValidationBody, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
-        return f"Validation Process for Course {self.courseid}"
+        return f"Validation Process for Course {self.course}"
 
 
 class ValidationRejectionReason(models.Model):
@@ -44,9 +44,23 @@ class ValidationRejectionReason(models.Model):
 
 
 class ValidationProcessEvent(models.Model):
-    validation_process = models.ForeignKey(ValidationProcess, on_delete=models.SET_NULL, null=True)
+    class StatusChoices(models.TextChoices):
+        SUBMITTED = "subm", "Submitted"
+        IN_REVIEW = "revi", "In Review"
+        DRAFT = "drft", "Draft"
+        APPROVED = "aprv", "Approved"
+        DISAPPROVED = "dprv", "Disapproved"
+        CANCELLED = "cncl", "Cancelled"
+        EXEMPT = "exmp", "Exempt"
+
+    validation_process = models.ForeignKey(
+        ValidationProcess,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="events"
+    )
     create_at = models.DateTimeField(auto_now_add=True)
-    status = forms.ChoiceField() # ToDo: add list
+    status = models.CharField(max_length=5, choices=StatusChoices.choices, default="subm")
     comment = models.TextField()
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     reason = models.ForeignKey(ValidationRejectionReason, on_delete=models.SET_NULL, null=True, blank=True)

@@ -9,6 +9,7 @@ app_name = 'platform_global_teacher_campus'
 router = DefaultRouter()
 router.register(r'course-category', views.CourseCategoryViewSet)
 router.register(r'validation-body', views.ValidationBodyViewSet)
+router.register(r'validation-process', views.ValidationProcessViewSet)
 
 urlpatterns = [
     path('', include((router.urls, app_name), namespace="pgtc-api")),
