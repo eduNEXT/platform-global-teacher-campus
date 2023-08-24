@@ -16,9 +16,13 @@ class CourseCategorySerializer(serializers.ModelSerializer):
 
 
 class OrganizationSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField()
+    name = serializers.ReadOnlyField()
+    short_name = serializers.ReadOnlyField()
+
     class Meta:
         model = Organization
-        fields = ['id']
+        fields = ['id', 'name', 'short_name']
 
 
 class UserEmailSerializer(serializers.ModelSerializer):
@@ -28,9 +32,33 @@ class UserEmailSerializer(serializers.ModelSerializer):
 
 
 class ValidationBodySerializer(serializers.ModelSerializer):
-    validators = UserEmailSerializer(many=True)
-    organizations = OrganizationSerializer(many=True)
+    validators = UserEmailSerializer(many=True, read_only=False)
+    organizations = OrganizationSerializer(many=True, read_only=False)
 
     class Meta:
         model = ValidationBody
         exclude = ['admin_notes']
+
+    def create(self, validated_data):
+        validators_data = validated_data.pop('validators')
+        organizations_data = validated_data.pop('organizations')
+
+        validation_body = ValidationBody.objects.create(**validated_data)
+
+        for validator_data in validators_data:
+            email = validator_data['email']
+            try:
+                user = User.objects.get(email=email)
+                validation_body.validators.add(user)
+            except User.DoesNotExist:
+                pass
+
+            for org_data in organizations_data:
+                org_id = org_data["id"]
+                try:
+                    organization = Organization.objects.get(id=org_id)
+                    validation_body.organizations.add(organization)
+                except Organization.DoesNotExist:
+                    pass
+
+            return validation_body
