@@ -2,16 +2,10 @@
 API v1 views.
 """
 
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
-from models import CourseCategory, ValidationProcess
+from platform_global_teacher_campus.models import CourseCategory
+from rest_framework import viewsets
+from platform_global_teacher_campus.api.v1.serializers import CourseCategorySerializer
 
-def index(request):
-    categories = CourseCategory.objects.all()
-    response_text = "\n".join([category.name for category in categories])
-    return HttpResponse(response_text)
-
-def validation_process_detail(request, process_id):
-    validation_process = get_object_or_404(ValidationProcess, id=process_id)
-    response_text = f"Validation Process for Course {validation_process.course_id}"
-    return HttpResponse(response_text)
+class CourseCategoryViewSet(viewsets.ModelViewSet):
+    queryset = CourseCategory.objects.all()
+    serializer_class = CourseCategorySerializer

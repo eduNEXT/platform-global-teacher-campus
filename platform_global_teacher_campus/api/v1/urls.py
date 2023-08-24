@@ -1,11 +1,9 @@
 """ urls.py """
 
-from django.urls import path
-from . import views
+from django.urls import include, path
 
-app_name = 'platform_global_teacher_campus'
+app_name = 'platform_global_teacher_campus'  # pylint: disable=invalid-name
 
-urlpatterns = [
-    path('', views.index, name='index'),
-    path('validation/<int:process_id>/', views.validation_process_detail, name='validation_process_detail'),
+urlpatterns = [  # pylint: disable=invalid-name
+    path('v1/', include('platform_global_teacher_campus.api.v1.urls', namespace='api-v1')),
 ]

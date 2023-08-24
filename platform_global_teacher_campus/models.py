@@ -12,9 +12,10 @@ CourseOverview = get_course_overview()
 User = get_user_model()
 Organization = get_organization_model()
 
+
 class CourseCategory(models.Model):
     name = models.TextField()
-    parent_category = models.IntegerField()
+    parent_category = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.name
@@ -23,7 +24,7 @@ class CourseCategory(models.Model):
 class ValidationBody(models.Model):
     validators = models.ManyToManyField(User)
     name = models.TextField()
-    admin_notes = models.TextField()
+    admin_notes = models.TextField(default="")
     organizations = models.ManyToManyField(Organization)
 
 
@@ -31,7 +32,7 @@ class ValidationProcess(models.Model):
     course = models.OneToOneField(CourseOverview, on_delete=models.SET_NULL, null=True)
     categories = models.ManyToManyField(CourseCategory)
     organization = models.ForeignKey(Organization, on_delete=models.SET_NULL, null=True)
-    current_validation_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, default=None)
+    current_validation_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     validation_body = models.ForeignKey(ValidationBody, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
@@ -48,13 +49,13 @@ class ValidationProcessEvent(models.Model):
     status = forms.ChoiceField() # ToDo: add list
     comment = models.TextField()
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    reason = models.ForeignKey(ValidationRejectionReason, on_delete=models.SET_NULL, null=True, default=None)
+    reason = models.ForeignKey(ValidationRejectionReason, on_delete=models.SET_NULL, null=True, blank=True)
 
 
 class ValidationRules(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, default=None)
-    validation_body = models.ForeignKey(ValidationBody, on_delete=models.CASCADE, null=True, default=None)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    validation_body = models.ForeignKey(ValidationBody, on_delete=models.CASCADE, null=True, blank=True)
     permission_type = forms.ChoiceField()
-    admin_notes = models.TextField()
-    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, null=True, default=None)
+    admin_notes = models.TextField(default="")
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, null=True, blank=True)
     is_active = models.BooleanField()
