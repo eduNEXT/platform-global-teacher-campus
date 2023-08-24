@@ -1,14 +1,9 @@
 """ urls.py """
 
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from platform_global_teacher_campus.api.v1 import views
+from django.urls import include, path
 
-app_name = 'platform_global_teacher_campus'
+app_name = 'platform_global_teacher_campus'  # pylint: disable=invalid-name
 
-router = DefaultRouter()
-router.register('course-categories', views.CourseCategoryViewSet)
-
-urlpatterns = [
-    path('', include(router.urls)),
+urlpatterns = [  # pylint: disable=invalid-name
+    path('v1/', include(('platform_global_teacher_campus.api.v1.urls', app_name), namespace="pgtc-api")),
 ]
