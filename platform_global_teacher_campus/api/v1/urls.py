@@ -10,6 +10,7 @@ router = DefaultRouter()
 router.register(r'course-category', views.CourseCategoryViewSet)
 router.register(r'validation-body', views.ValidationBodyViewSet)
 router.register(r'validation-process', views.ValidationProcessViewSet)
+router.register(r'validation-process-event', views.ValidationProcessEventViewSet)
 
 urlpatterns = [
     path('', include((router.urls, app_name), namespace="pgtc-api")),
