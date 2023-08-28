@@ -40,7 +40,7 @@ class ValidationProcess(models.Model):
 
 
 class ValidationRejectionReason(models.Model):
-    name = models.TextField()
+    name = models.CharField(max_length=100)
 
 
 class ValidationProcessEvent(models.Model):

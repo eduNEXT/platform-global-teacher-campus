@@ -125,20 +125,13 @@ class ValidationProcessSerializer(serializers.ModelSerializer):
         except ValidationBody.DoesNotExist:
             validation_body = None
 
-        categories = []
-        for category_id in category_ids:
-            try:
-                category = CourseCategory.objects.get(id=category_id)
-                categories.append(category)
-            except CourseCategory.DoesNotExist:
-                pass
-
         validation_process = ValidationProcess.objects.create(
             course=course,
             organization=organization,
             validation_body=validation_body,
             **validated_data
         )
+        categories = CourseCategory.objects.filter(id__in=category_ids)
         validation_process.categories.add(*categories)
 
         process_event_data = {
