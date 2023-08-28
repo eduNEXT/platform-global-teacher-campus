@@ -2,4 +2,4 @@
 -c constraints.txt
 
 Django             # Web application framework
-
+openedx-filters==1.0.0

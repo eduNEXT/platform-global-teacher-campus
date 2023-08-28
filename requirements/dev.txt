@@ -54,6 +54,7 @@ django==3.2.20
     #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -r requirements/quality.txt
     #   edx-i18n-tools
+    #   openedx-filters
 edx-i18n-tools==1.1.0
     # via -r requirements/dev.in
 edx-lint==5.3.4
@@ -92,6 +93,8 @@ mccabe==0.7.0
     # via
     #   -r requirements/quality.txt
     #   pylint
+openedx-filters==1.0.0
+    # via -r requirements/quality.txt
 packaging==23.1
     # via
     #   -r requirements/ci.txt
@@ -226,9 +229,11 @@ tox-battery==0.6.1
     # via -r requirements/ci.txt
 typing-extensions==4.7.1
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
     #   asgiref
     #   astroid
+    #   filelock
     #   pylint
 virtualenv==20.24.2
     # via
