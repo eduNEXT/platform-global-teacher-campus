@@ -2,9 +2,9 @@
 The pipeline module defines custom Filters functions that are used in openedx-filters.
 """
 from openedx_filters import PipelineStep
-from platform_global_teacher_campus.edxapp_wrapper.force_publish import force_publish
+from platform_global_teacher_campus.edxapp_wrapper.force_publish import get_force_publish_course
 
-ForcePublishCourseRenderStarted = force_publish()
+ForcePublishCourseRenderStarted = get_force_publish_course()
 
 
 class StopForcePublishCourseRender(PipelineStep):
@@ -19,7 +19,7 @@ class StopForcePublishCourseRender(PipelineStep):
             "org.openedx.studio.manages.force_publish.render.started.v1": {
                 "fail_silently": false,
                 "pipeline": [
-                    "platform_global_teacher_campus.filters.pipelines.StopForcePublishCourseRender"
+                    "platform_global_teacher_campus.filters.pipeline.StopForcePublishCourseRender"
                 ]
             }
         },
