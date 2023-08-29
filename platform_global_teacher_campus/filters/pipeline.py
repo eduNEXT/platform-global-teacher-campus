@@ -3,8 +3,13 @@ The pipeline module defines custom Filters functions that are used in openedx-fi
 """
 from openedx_filters import PipelineStep
 from platform_global_teacher_campus.edxapp_wrapper.force_publish import get_force_publish_course
+from platform_global_teacher_campus.edxapp_wrapper.courses import get_course_overview
+from platform_global_teacher_campus.edxapp_wrapper.organizations import get_organization_model
+from platform_global_teacher_campus.models import ValidationRules
 
 ForcePublishCourseRenderStarted = get_force_publish_course()
+CourseOverview = get_course_overview()
+Organization = get_organization_model()
 
 
 class StopForcePublishCourseRender(PipelineStep):
@@ -52,11 +57,12 @@ class ModifyRequestToBlockCourse(PipelineStep):
         """
         Pipeline step that stop publish course page.
         """
-
-        if request.json.get('publish') == 'make_public':
-            request.json['publish'] = None
-
         course_key = str(course_key)
+        course = CourseOverview.objects.get(course_id=course_key)
 
+        if ValidationRules.objects.filter(is_active=True, organization__short_name=course.org).exists():
+            return request
 
+        # Disable publish button
+        request.json['publish'] = None
         return request

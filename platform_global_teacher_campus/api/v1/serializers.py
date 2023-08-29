@@ -8,6 +8,7 @@ from platform_global_teacher_campus.models import (
     ValidationProcess,
     ValidationProcessEvent,
     ValidationRejectionReason,
+    ValidationRules,
 )
 
 CourseOverview = get_course_overview()
@@ -107,11 +108,50 @@ class ValidationProcessSerializer(serializers.ModelSerializer):
         model = ValidationProcess
         fields = "__all__"
 
+    def apply_validation_rules(self, validation_process, user) -> any:
+        is_org_exempt = ValidationRules.objects.filter(
+            is_active=True,
+            organization=validation_process.organization,
+            permission_type=ValidationRules.PermissionTypeChoices.ORG_EXEMPT
+        ).exists()
+
+        is_user_exempt = ValidationRules.objects.filter(
+            is_active=True,
+            organization=validation_process.organization,
+            user=user,
+            permission_type=ValidationRules.PermissionTypeChoices.USER_EXEMPT
+        ).exists()
+
+        is_vd_exempt = ValidationRules.objects.filter(
+            is_active=True,
+            organization=validation_process.organization,
+            validation_body=validation_process.validation_body,
+            permission_type=ValidationRules.PermissionTypeChoices.VALIDATION_BODY_EXEMPT
+        ).exists()
+
+        if is_org_exempt or is_user_exempt or is_vd_exempt:
+            data = {
+                'comment': 'this course was automatic published due to exempt rules.',
+                'status': ValidationProcessEvent.StatusChoices.EXEMPT,
+                'validation_process': validation_process
+            }
+            process_event_serializer = ValidationProcessEventSerializer(data=data)
+            process_event_serializer.is_valid(raise_exception=True)
+            process_event_serializer.save(validation_process=data["validation_process"])
+
+    def create_event(self, data) -> None:
+        data.update({
+            'status': ValidationProcessEvent.StatusChoices.SUBMITTED
+        })
+        process_event_serializer = ValidationProcessEventSerializer(data=data)
+        process_event_serializer.is_valid(raise_exception=True)
+        process_event_serializer.save(validation_process=data["validation_process"])
+
     def create(self, validated_data):
         course_id = validated_data.pop('course_id')
         category_ids = validated_data.pop('category_ids')
         validation_body_id = validated_data.pop('validation_body_id')
-        submitted_comment = validated_data.pop('comment')
+        submitted_comment = validated_data.pop('comment', None)
 
         try:
             course = CourseOverview.objects.get(id=course_id)
@@ -134,14 +174,15 @@ class ValidationProcessSerializer(serializers.ModelSerializer):
         categories = CourseCategory.objects.filter(id__in=category_ids)
         validation_process.categories.add(*categories)
 
-        process_event_data = {
+        # ToDo: Remove thisone when user is working
+        self.context['request'].user = User.objects.get(id=4)
+
+        self.create_event(data={
             'validation_process': validation_process,
             'comment': submitted_comment,
-            'status': "subm",
-        }
+            'user': self.context['request'].user.id,
+        })
 
-        process_event_serializer = ValidationProcessEventSerializer(data=process_event_data)
-        process_event_serializer.is_valid(raise_exception=True)
-        process_event_serializer.save(validation_process=validation_process)
+        self.apply_validation_rules(validation_process, self.context['request'].user)
 
         return validation_process

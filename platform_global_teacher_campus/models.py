@@ -67,9 +67,21 @@ class ValidationProcessEvent(models.Model):
 
 
 class ValidationRules(models.Model):
+    class PermissionTypeChoices(models.TextChoices):
+        """
+        Org Excluded: No validation process
+        Org Exempt: Automatic validation process
+        User Exempt by org: Automatic validation process
+        Validation Body Exempt by org: Automatic validation process
+        """
+        ORG_EXCLUDED = "org_excluded", "Organization Excluded"
+        ORG_EXEMPT = "org_exempt", "Organization Exempt"
+        USER_EXEMPT = "user_exempt", "User Exempt"
+        VALIDATION_BODY_EXEMPT = "vb_exempt", "Validation Body Exempt"
+
+    permission_type = models.CharField(max_length=15, choices=PermissionTypeChoices.choices, default="org_excluded")
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     validation_body = models.ForeignKey(ValidationBody, on_delete=models.CASCADE, null=True, blank=True)
-    permission_type = forms.ChoiceField()
     admin_notes = models.TextField(default="")
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, null=True, blank=True)
     is_active = models.BooleanField()
