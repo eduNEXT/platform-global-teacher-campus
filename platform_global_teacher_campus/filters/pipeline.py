@@ -40,7 +40,7 @@ class ModifyRequestToBlockCourse(PipelineStep):
     Example usage:
     Add the following configurations to your configuration file:
         "OPEN_EDX_FILTERS_CONFIG": {
-            "org.openedx.studio.contentstore.modify_usage_key_ request.started.v1": {
+            "org.openedx.studio.contentstore.modify_usage_key_request.started.v1": {
                 "fail_silently": false,
                 "pipeline": [
                     "platform_global_teacher_campus.filters.pipeline.ModifyRequestToBlockCourse"
