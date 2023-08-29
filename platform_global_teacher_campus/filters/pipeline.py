@@ -32,3 +32,31 @@ class StopForcePublishCourseRender(PipelineStep):
             "You can't access to account settings.",
             redirect_to="",
         )
+
+
+class ModifyRequestToBlockCourse(PipelineStep):
+    """
+    Stop account settings render process raising RedirectToPage exception.
+    Example usage:
+    Add the following configurations to your configuration file:
+        "OPEN_EDX_FILTERS_CONFIG": {
+            "org.openedx.studio.contentstore.modify_usage_key_ request.started.v1": {
+                "fail_silently": false,
+                "pipeline": [
+                    "platform_global_teacher_campus.filters.pipeline.ModifyRequestToBlockCourse"
+                ]
+            }
+        },
+    """
+    def run_filter(self, request, course_key, *args, **kwargs):  # pylint: disable=arguments-differ
+        """
+        Pipeline step that stop publish course page.
+        """
+
+        if request.json.get('publish') == 'make_public':
+            request.json['publish'] = None
+
+        course_key = str(course_key)
+
+
+        return request
