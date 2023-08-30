@@ -1,11 +1,16 @@
 """
 The pipeline module defines custom Filters functions that are used in openedx-filters.
 """
+
+import logging
+
 from openedx_filters import PipelineStep
 from platform_global_teacher_campus.edxapp_wrapper.force_publish import get_force_publish_course
 from platform_global_teacher_campus.edxapp_wrapper.courses import get_course_overview
 from platform_global_teacher_campus.edxapp_wrapper.organizations import get_organization_model
-from platform_global_teacher_campus.models import ValidationRules
+from platform_global_teacher_campus.models import ValidationProcess, ValidationProcessEvent, ValidationRules
+
+log = logging.getLogger(__name__)
 
 ForcePublishCourseRenderStarted = get_force_publish_course()
 CourseOverview = get_course_overview()
@@ -57,14 +62,38 @@ class ModifyRequestToBlockCourse(PipelineStep):
         """
         Pipeline step that stop publish course page.
         """
-
         course_key = str(course_key)
         course = CourseOverview.objects.get(id=course_key)
 
-        # ToDo: this should validate that permission_type is ORG_EXCLUDED
-        if ValidationRules.objects.filter(is_active=True, organization__short_name=course.org).exists():
+        organization = Organization.objects.get(short_name=course.org)
+
+        is_org_excluded = ValidationRules.objects.filter(
+            permission_type=ValidationRules.PermissionTypeChoices.ORG_EXCLUDED,
+            organization=organization,
+            is_active=True,
+        ).exists()
+
+        if is_org_excluded:
+            log.info("Permission type is ORG_EXCLUDED for %s. Publishing course %s.", course.org, course)
             return request
 
-        request.json["publish"] = None
+        if "data" in request.json:
+            if not ValidationProcess.objects.filter(course=course).exists():
+                log.info("Can create a new course without validation process")
+                return request
+
+            is_status_draft = ValidationProcessEvent.objects.filter(
+                validation_process=ValidationProcess.objects.get(course=course),
+                status=ValidationProcessEvent.StatusChoices.DRAFT,
+            ).exists()
+
+            if not is_status_draft:
+                request.json['data'] = None
+                log.info("Can not edit a couse. status is not draft.")
+                return request
+
         # Disable publish button
-        return request
+        if "publish" in request.json and request.json["publish"] == "make_public":
+            request.json["publish"] = None
+            log.info("Can not Publish the course %s", course)
+            return request
