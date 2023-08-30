@@ -15,6 +15,8 @@ from platform_global_teacher_campus.api.v1.serializers import (
     ValidationProcessSerializer,
     ValidationProcessEventSerializer
 )
+from rest_framework.permissions import IsAuthenticated
+from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 
 
 class CourseCategoryViewSet(viewsets.ModelViewSet):
@@ -28,6 +30,8 @@ class ValidationBodyViewSet(viewsets.ModelViewSet):
 
 
 class ValidationProcessViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = (JwtAuthentication,)
     queryset = ValidationProcess.objects.all()
     serializer_class = ValidationProcessSerializer
 
