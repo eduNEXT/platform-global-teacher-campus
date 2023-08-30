@@ -88,7 +88,7 @@ class ValidationProcessEventSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ValidationProcessEvent
-        exclude = ["validation_process"]
+        fields = "__all__"
 
 
 class ValidationProcessSerializer(serializers.ModelSerializer):
@@ -133,11 +133,11 @@ class ValidationProcessSerializer(serializers.ModelSerializer):
             data = {
                 'comment': 'this course was automatic published due to exempt rules.',
                 'status': ValidationProcessEvent.StatusChoices.EXEMPT,
-                'validation_process': validation_process
+                'validation_process': validation_process.id
             }
             process_event_serializer = ValidationProcessEventSerializer(data=data)
             process_event_serializer.is_valid(raise_exception=True)
-            process_event_serializer.save(validation_process=data["validation_process"])
+            process_event_serializer.save()
 
     def create_event(self, data) -> None:
         data.update({
@@ -145,7 +145,7 @@ class ValidationProcessSerializer(serializers.ModelSerializer):
         })
         process_event_serializer = ValidationProcessEventSerializer(data=data)
         process_event_serializer.is_valid(raise_exception=True)
-        process_event_serializer.save(validation_process=data["validation_process"])
+        process_event_serializer.save()
 
     def create(self, validated_data):
         course_id = validated_data.pop('course_id')
@@ -178,7 +178,7 @@ class ValidationProcessSerializer(serializers.ModelSerializer):
         self.context['request'].user = User.objects.get(id=4)
 
         self.create_event(data={
-            'validation_process': validation_process,
+            'validation_process': validation_process.id,
             'comment': submitted_comment,
             'user': self.context['request'].user.id,
         })
