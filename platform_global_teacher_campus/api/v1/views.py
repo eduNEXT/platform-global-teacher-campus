@@ -25,6 +25,7 @@ from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthenticat
 User = get_user_model()
 CourseStaffRole = get_course_staff_role()
 
+
 class CourseCategoryViewSet(viewsets.ModelViewSet):
     queryset = CourseCategory.objects.all()
     serializer_class = CourseCategorySerializer
