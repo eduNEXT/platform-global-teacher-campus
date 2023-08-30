@@ -57,12 +57,14 @@ class ModifyRequestToBlockCourse(PipelineStep):
         """
         Pipeline step that stop publish course page.
         """
-        course_key = str(course_key)
-        course = CourseOverview.objects.get(course_id=course_key)
 
+        course_key = str(course_key)
+        course = CourseOverview.objects.get(id=course_key)
+
+        # ToDo: this should validate that permission_type is ORG_EXCLUDED
         if ValidationRules.objects.filter(is_active=True, organization__short_name=course.org).exists():
             return request
 
+        request.json["publish"] = None
         # Disable publish button
-        request.json['publish'] = None
         return request
