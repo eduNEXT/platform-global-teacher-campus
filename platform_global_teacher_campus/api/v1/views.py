@@ -45,6 +45,8 @@ class ValidationProcessViewSet(viewsets.ModelViewSet):
 class ValidationProcessEventViewSet(viewsets.ModelViewSet):
     queryset = ValidationProcessEvent.objects.all()
     serializer_class = ValidationProcessEventSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = (JwtAuthentication,)
 
     def has_publish_permissions(self, course_key, user):
         return CourseStaffRole(course_key).has_user(user)
