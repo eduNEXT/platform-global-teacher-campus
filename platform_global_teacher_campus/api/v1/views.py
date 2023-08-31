@@ -19,6 +19,8 @@ from platform_global_teacher_campus.api.v1.serializers import (
 )
 from platform_global_teacher_campus.edxapp_wrapper.users import get_user_model
 from platform_global_teacher_campus.edxapp_wrapper.course_roles import get_course_staff_role
+from rest_framework.permissions import IsAuthenticated
+from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 
 User = get_user_model()
 CourseStaffRole = get_course_staff_role()
@@ -34,6 +36,8 @@ class ValidationBodyViewSet(viewsets.ModelViewSet):
 
 
 class ValidationProcessViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = (JwtAuthentication,)
     queryset = ValidationProcess.objects.all()
     serializer_class = ValidationProcessSerializer
 
