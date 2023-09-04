@@ -60,7 +60,7 @@ class ValidationProcessEventViewSet(viewsets.ModelViewSet):
 
     def validate_permissions(self, new_status, user, validation_process):
         user_allowed_status = {
-            ValidationProcessEvent.StatusChoices.SUBMITTED: "user",
+            ValidationProcessEvent.StatusChoices.SUBMITTED: "both",
             ValidationProcessEvent.StatusChoices.IN_REVIEW: "validator",
             ValidationProcessEvent.StatusChoices.DRAFT: "validator",
             ValidationProcessEvent.StatusChoices.APPROVED: "validator",
@@ -68,22 +68,25 @@ class ValidationProcessEventViewSet(viewsets.ModelViewSet):
             ValidationProcessEvent.StatusChoices.CANCELLED: "user",
         }
 
-        if user_allowed_status[new_status] == "user":
+        if user_allowed_status[new_status] in ["user", "both"]:
             if not self.has_publish_permissions(validation_process.course.id, user):
                 error_msg = f"You don't have permissions on this course to do this action: {new_status}"
                 return Response({"error": error_msg}, status=status.HTTP_403_FORBIDDEN)
 
-        if user_allowed_status[new_status] == "validator":
+        if user_allowed_status[new_status] in ["validator", "both"]:
             if not self.is_validator_of_validation_body(validation_process.validation_body, user):
                 error_msg = f"You don't have permissions as validator to do this action: {new_status}"
                 return Response({"error": error_msg}, status=status.HTTP_403_FORBIDDEN)
 
         return None
 
-    def validate_transition(self, new_status, current_status, validation_process):
+    def validate_transition(self, new_status, current_status):
         allowed_transitions = {
             ValidationProcessEvent.StatusChoices.SUBMITTED: [
-                None, ValidationProcessEvent.StatusChoices.DRAFT,
+                None,
+                ValidationProcessEvent.StatusChoices.DRAFT,
+                # This allows one validator to release a course for review by another validator.
+                ValidationProcessEvent.StatusChoices.IN_REVIEW,
             ],
             ValidationProcessEvent.StatusChoices.IN_REVIEW: [
                 ValidationProcessEvent.StatusChoices.DRAFT, ValidationProcessEvent.StatusChoices.SUBMITTED,
@@ -121,7 +124,7 @@ class ValidationProcessEventViewSet(viewsets.ModelViewSet):
         if permissions_result is not None:
             return permissions_result
 
-        transition_result = self.validate_transition(new_status, current_status, validation_process)
+        transition_result = self.validate_transition(new_status, current_status)
         if transition_result is not None:
             return transition_result
 
