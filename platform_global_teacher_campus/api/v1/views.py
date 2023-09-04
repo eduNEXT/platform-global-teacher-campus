@@ -87,6 +87,7 @@ class ValidationProcessEventViewSet(viewsets.ModelViewSet):
                 ValidationProcessEvent.StatusChoices.DRAFT,
                 # This allows one validator to release a course for review by another validator.
                 ValidationProcessEvent.StatusChoices.IN_REVIEW,
+                ValidationProcessEvent.StatusChoices.CANCELLED,
             ],
             ValidationProcessEvent.StatusChoices.IN_REVIEW: [
                 ValidationProcessEvent.StatusChoices.DRAFT, ValidationProcessEvent.StatusChoices.SUBMITTED,
