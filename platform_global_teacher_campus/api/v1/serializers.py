@@ -10,7 +10,6 @@ from platform_global_teacher_campus.models import (
     ValidationRejectionReason,
     ValidationRules,
 )
-from rest_framework.permissions import IsAuthenticated
 
 CourseOverview = get_course_overview()
 User = get_user_model()
@@ -174,8 +173,6 @@ class ValidationProcessSerializer(serializers.ModelSerializer):
         )
         categories = CourseCategory.objects.filter(id__in=category_ids)
         validation_process.categories.add(*categories)
-
-      
 
         self.create_event(data={
             'validation_process': validation_process.id,
