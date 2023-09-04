@@ -20,12 +20,18 @@ class CourseCategory(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name_plural = "Course Categories"
+
 
 class ValidationBody(models.Model):
     validators = models.ManyToManyField(User)
     name = models.TextField()
     admin_notes = models.TextField(default="")
     organizations = models.ManyToManyField(Organization)
+
+    class Meta:
+        verbose_name_plural = "Validation Bodies"
 
 
 class ValidationProcess(models.Model):
@@ -38,9 +44,15 @@ class ValidationProcess(models.Model):
     def __str__(self):
         return f"Validation Process for Course {self.course}"
 
+    class Meta:
+        verbose_name_plural = "Validation Processes"
+
 
 class ValidationRejectionReason(models.Model):
     name = models.CharField(max_length=100)
+
+    class Meta:
+        verbose_name_plural = "Validation Rejection Reasons"
 
 
 class ValidationProcessEvent(models.Model):
@@ -65,6 +77,9 @@ class ValidationProcessEvent(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     reason = models.ForeignKey(ValidationRejectionReason, on_delete=models.SET_NULL, null=True, blank=True)
 
+    class Meta:
+        verbose_name_plural = "Validation Process Events"
+
 
 class ValidationRules(models.Model):
     class PermissionTypeChoices(models.TextChoices):
@@ -85,3 +100,6 @@ class ValidationRules(models.Model):
     admin_notes = models.TextField(default="")
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, null=True, blank=True)
     is_active = models.BooleanField()
+
+    class Meta:
+        verbose_name_plural = "Validation Rules"
