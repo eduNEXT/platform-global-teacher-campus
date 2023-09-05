@@ -14,4 +14,5 @@ router.register(r'validation-process-event', views.ValidationProcessEventViewSet
 
 urlpatterns = [
     path('', include((router.urls, app_name), namespace="pgtc-api")),
+    path('validation-processes/<str:course_id>/submit/', views.submit_validation_process, name="validation-process-submit"),
 ]

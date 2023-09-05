@@ -45,6 +45,13 @@ class ValidationProcess(models.Model):
     current_validation_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     validation_body = models.ForeignKey(ValidationBody, on_delete=models.SET_NULL, null=True)
 
+    @classmethod
+    def get_from_course_id(cls, course_id):
+        try:
+            return cls.objects.get(course_id=course_id)
+        except cls.DoesNotExist:
+            return None
+
     def __str__(self):
         return f"Validation Process for Course {self.course}"
 
