@@ -2,6 +2,7 @@ from rest_framework import serializers
 from platform_global_teacher_campus.edxapp_wrapper.courses import get_course_overview
 from platform_global_teacher_campus.edxapp_wrapper.users import get_user_model
 from platform_global_teacher_campus.edxapp_wrapper.organizations import get_organization_model
+from platform_global_teacher_campus.edxapp_wrapper.force_publish_command import get_force_publish_course_command
 from platform_global_teacher_campus.models import (
     ValidationBody,
     CourseCategory,
@@ -14,6 +15,7 @@ from platform_global_teacher_campus.models import (
 CourseOverview = get_course_overview()
 User = get_user_model()
 Organization = get_organization_model()
+ForcePublishCourseCommand = get_force_publish_course_command()
 
 
 class CourseCategorySerializer(serializers.ModelSerializer):
@@ -138,6 +140,11 @@ class ValidationProcessSerializer(serializers.ModelSerializer):
             process_event_serializer = ValidationProcessEventSerializer(data=data)
             process_event_serializer.is_valid(raise_exception=True)
             process_event_serializer.save()
+
+            options = {'course_key': str(validation_process.course), 'commit': True}
+
+            command_instance = ForcePublishCourseCommand()
+            command_instance.handle(**options)
 
     def create_event(self, data) -> None:
         data.update({
