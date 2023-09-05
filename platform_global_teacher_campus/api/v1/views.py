@@ -37,6 +37,11 @@ class CourseCategoryViewSet(viewsets.ModelViewSet):
 class ValidationBodyViewSet(viewsets.ModelViewSet):
     queryset = ValidationBody.objects.all()
     serializer_class = ValidationBodySerializer
+    
+    def list(self, request):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class ValidationProcessViewSet(viewsets.ModelViewSet):
