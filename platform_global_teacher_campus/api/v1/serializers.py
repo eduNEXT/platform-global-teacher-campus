@@ -11,6 +11,15 @@ from platform_global_teacher_campus.models import (
     ValidationRules,
 )
 from rest_framework.permissions import IsAuthenticated
+from platform_global_teacher_campus.edxapp_wrapper.publish import (
+    get_get_xblock,
+    get_modulestore,
+    get_usage_key_with_run
+)
+
+_get_xblock = get_get_xblock()
+modulestore = get_modulestore()
+usage_key_with_run = get_usage_key_with_run()
 
 CourseOverview = get_course_overview()
 User = get_user_model()
@@ -131,6 +140,11 @@ class ValidationProcessSerializer(serializers.ModelSerializer):
         ).exists()
 
         if is_org_exempt or is_user_exempt or is_vd_exempt:
+            course_block = str(validation_process.course).replace("course-v1", "block-v1")
+            usage_key_string = f'{course_block}+type@course+block@course'
+            usage_key = usage_key_with_run(usage_key_string)
+            xblock = _get_xblock(usage_key, user)
+            modulestore().publish(xblock.location, user.id)
             data = {
                 'comment': 'this course was automatic published due to exempt rules.',
                 'status': ValidationProcessEvent.StatusChoices.EXEMPT,
