@@ -111,3 +111,13 @@ def update_validation_process_state(request, course_id):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JwtAuthentication])
+def info_validation_process(request, course_id):
+    try:
+        validation_process = ValidationProcess.objects.get(course_id=course_id)
+        serializer = ValidationProcessSerializer(validation_process)  # Serialize the ValidationProcess object
+        return Response(serializer.data)  # Return serialized data as JSON
+    except ValidationProcess.DoesNotExist:
+        return Response({"error": "Validation process not found"}, status=404)
