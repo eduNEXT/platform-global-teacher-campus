@@ -161,7 +161,7 @@ class ValidationProcessSerializer(serializers.ModelSerializer):
             if updated_versions:
                 # if publish and draft were different
                 if versions['published-branch'] != versions['draft-branch']:
-                    print(f"Success! Published the course '{course_key}' forcefully.")
+                    print(f"Success! Published the course '{course_key}'.")
                     print(f"Updated course versions : \n{updated_versions}")
                 else:
                     print(f"Course '{course_key}' is already in published state.")

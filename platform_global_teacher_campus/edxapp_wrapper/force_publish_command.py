@@ -7,7 +7,10 @@ from importlib import import_module
 from django.conf import settings
 
 def get_force_publish_course_command():
-    """ Gets force publish course command class from edxapp. """
+    """
+    Gets helper method to forcefully publish a course,
+    making the published branch point to the same structure as the draft branch.
+    """
 
     backend_function = settings.FORCE_PUBLISH_COMMAND_BACKEND
     backend = import_module(backend_function)
@@ -15,7 +18,9 @@ def get_force_publish_course_command():
     return backend.get_force_publish_course_command()
 
 def get_course_versions_branches():
-    """ Gets get_course_versions from commands utils. """
+    """
+    Gets fetches the latest course versions.
+    """
 
     backend_function = settings.FORCE_PUBLISH_COMMAND_BACKEND
     backend = import_module(backend_function)
@@ -23,7 +28,9 @@ def get_course_versions_branches():
     return backend.get_course_versions_branches()
 
 def get_modulestore():
-    """ Gets the UserAttribute. """
+    """
+    Gets a modulestore wrapper.
+    """
 
     backend_function = settings.FORCE_PUBLISH_COMMAND_BACKEND
     backend = import_module(backend_function)
@@ -31,7 +38,9 @@ def get_modulestore():
     return backend.get_modulestore()
 
 def get_course_key():
-    """ Gets the CourseKey. """
+    """
+    Gets the CourseKey model.
+    """
 
     backend_function = settings.FORCE_PUBLISH_COMMAND_BACKEND
     backend = import_module(backend_function)
@@ -39,7 +48,9 @@ def get_course_key():
     return backend.get_course_key()
 
 def get_mixed_module_store():
-    """ Gets the MixedModuleStore. """
+    """
+    Gets ModuleStore knows how to route requests to the right persistence ms.
+    """
 
     backend_function = settings.FORCE_PUBLISH_COMMAND_BACKEND
     backend = import_module(backend_function)

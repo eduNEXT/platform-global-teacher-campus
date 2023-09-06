@@ -11,21 +11,22 @@ from opaque_keys.edx.keys import CourseKey
 
 def get_force_publish_course_command():
     """
-    Gets force publish course command class from edxapp.
+    Gets helper method to forcefully publish a course,
+    making the published branch point to the same structure as the draft branch.
     """
 
     return DraftVersioningModuleStore
 
 def get_course_versions_branches():
     """
-    Gets force publish course command class from edxapp.
+    Gets fetches the latest course versions.
     """
 
     return get_course_versions
 
 def get_modulestore():
     """
-    Gets the UserAttribute model.
+    Gets a modulestore wrapper.
     """
 
     return modulestore
@@ -39,7 +40,7 @@ def get_course_key():
 
 def get_mixed_module_store():
     """
-    Gets the CourseKey model.
+    Gets ModuleStore knows how to route requests to the right persistence ms.
     """
 
     return MixedModuleStore
