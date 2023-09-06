@@ -32,11 +32,15 @@ CourseOverview = get_course_overview()
 class CourseCategoryViewSet(viewsets.ModelViewSet):
     queryset = CourseCategory.objects.all()
     serializer_class = CourseCategorySerializer
+    pagination_class = None  # This disables pagination
+    http_method_names = ['get']  # Only allow GET requests 
 
 
 class ValidationBodyViewSet(viewsets.ModelViewSet):
     queryset = ValidationBody.objects.all()
     serializer_class = ValidationBodySerializer
+    pagination_class = None  # This disables pagination
+    http_method_names = ['get']  # Only allow GET requests 
 
 
 class ValidationProcessViewSet(viewsets.ModelViewSet):
@@ -106,3 +110,4 @@ def update_validation_process_state(request, course_id):
         serializer.save(validation_process=validation_process)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
