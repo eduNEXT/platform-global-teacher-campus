@@ -6,10 +6,12 @@ from django.db import models
 from platform_global_teacher_campus.edxapp_wrapper.courses import get_course_overview
 from platform_global_teacher_campus.edxapp_wrapper.users import get_user_model
 from platform_global_teacher_campus.edxapp_wrapper.organizations import get_organization_model
+from platform_global_teacher_campus.edxapp_wrapper.course_roles import get_course_staff_role
 
 CourseOverview = get_course_overview()
 User = get_user_model()
 Organization = get_organization_model()
+CourseStaffRole = get_course_staff_role()
 
 
 class CourseCategory(models.Model):
@@ -34,6 +36,10 @@ class ValidationBody(models.Model):
     def __str__(self):
         return self.name
 
+    def is_validator(self, user):
+        user_id = user.id if isinstance(user, User) else user
+        return user_id in self.validators.all()
+
     class Meta:
         verbose_name_plural = "Validation Bodies"
 
@@ -51,6 +57,20 @@ class ValidationProcess(models.Model):
             return cls.objects.get(course_id=course_id)
         except cls.DoesNotExist:
             return None
+
+    @classmethod
+    def can_user_submit(cls, user, course_id):
+        if not isinstance(user, User):
+            user = User.objects.get(id=user)
+
+        course = CourseOverview.objects.get(id=course_id)
+        if course:
+            return CourseStaffRole(course.id).has_user(user)
+        return False
+
+    def is_validator(self, user):
+        user_id = user.id if isinstance(user, User) else user
+        return self.current_validation_user == user_id or self.validation_body.is_validator(user)
 
     def __str__(self):
         return f"Validation Process for Course {self.course}"
@@ -94,6 +114,57 @@ class ValidationProcessEvent(models.Model):
     def __str__(self):
         status_display = dict(ValidationProcessEvent.StatusChoices.choices).get(self.status, "Unknown")
         return f"Event ({status_display}) for Validation Process (ID: {self.validation_process.id})"
+
+    @classmethod
+    def can_user_update_to(cls, user, validation_process, status):
+        allowed_status = set()
+
+        if ValidationProcess.can_user_submit(user, validation_process.course.id):
+            allowed_status.update([
+                cls.StatusChoices.SUBMITTED,
+                cls.StatusChoices.CANCELLED
+            ])
+
+        if validation_process.is_validator(user):
+            allowed_status.update([
+                cls.StatusChoices.SUBMITTED,
+                cls.StatusChoices.IN_REVIEW,
+                cls.StatusChoices.DRAFT,
+                cls.StatusChoices.APPROVED,
+                cls.StatusChoices.DISAPPROVED,
+            ])
+
+        return status in allowed_status
+
+    @classmethod
+    def can_transition_from_to(cls, current_status, new_status):
+        allowed_transitions = {
+            cls.StatusChoices.SUBMITTED: [
+                cls.StatusChoices.DRAFT,
+                cls.StatusChoices.IN_REVIEW,
+                cls.StatusChoices.CANCELLED,
+            ],
+            cls.StatusChoices.IN_REVIEW: [
+                cls.StatusChoices.DRAFT,
+                cls.StatusChoices.SUBMITTED,
+            ],
+            cls.StatusChoices.DRAFT: [
+                cls.StatusChoices.IN_REVIEW,
+                cls.StatusChoices.SUBMITTED,
+            ],
+            cls.StatusChoices.APPROVED: [
+                cls.StatusChoices.IN_REVIEW,
+            ],
+            cls.StatusChoices.DISAPPROVED: [
+                cls.StatusChoices.IN_REVIEW,
+            ],
+            cls.StatusChoices.CANCELLED: [
+                cls.StatusChoices.DRAFT,
+                cls.StatusChoices.SUBMITTED,
+            ],
+        }
+
+        return new_status in allowed_transitions.get(current_status, [])
 
     class Meta:
         verbose_name_plural = "Validation Process Events"
