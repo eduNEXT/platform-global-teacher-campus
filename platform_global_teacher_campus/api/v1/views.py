@@ -60,8 +60,8 @@ def submit_validation_process(request, course_id):
 
     data = {
         "course_id": str(course_id),
-        "category_ids": request.data.get("categories"),
-        "validation_body_id": request.data.get("validation_body"),
+        "category_ids": request.data.get("category_ids"),
+        "validation_body_id": request.data.get("validation_body_id"),
         "comment": request.data.get("comment"),
     }
 
