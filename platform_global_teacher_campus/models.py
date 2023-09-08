@@ -37,8 +37,8 @@ class ValidationBody(models.Model):
         return self.name
 
     def is_validator(self, user):
-        user_id = user.id if isinstance(user, User) else user
-        return user_id in self.validators.all()
+        user = user if isinstance(user, User) else User.objects.get(id=user)
+        return user in self.validators.all()
 
     class Meta:
         verbose_name_plural = "Validation Bodies"
