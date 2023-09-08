@@ -17,6 +17,7 @@ from platform_global_teacher_campus.api.v1.serializers import (
     ValidationProcessSerializer,
     ValidationProcessEventSerializer
 )
+from .publish_utils import publish_course
 from platform_global_teacher_campus.edxapp_wrapper.users import get_user_model
 from platform_global_teacher_campus.edxapp_wrapper.course_roles import (
     get_course_staff_role,
@@ -112,6 +113,15 @@ def update_validation_process_state(request, course_id):
         if not ValidationProcessEvent.can_transition_from_to(current_status, new_status):
             error_msg = f"This action ({new_status}) can't be applied because the previous action is {current_status}"
             return Response({"detail": error_msg}, status=status.HTTP_400_BAD_REQUEST)
+
+        if new_status == ValidationProcessEvent.StatusChoices.IN_REVIEW:
+            validation_process.current_validation_user = request.user
+            
+        if new_status == ValidationProcessEvent.StatusChoices.SUBMITTED and validation_process.validation_body.is_validator(request.user):
+            validation_process.current_validation_user = None
+
+        if new_status == ValidationProcessEvent.StatusChoices.APPROVED:
+            publish_result = publish_course(validation_process.course, request.user)
 
         serializer.save(validation_process=validation_process)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
