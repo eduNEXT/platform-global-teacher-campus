@@ -140,26 +140,20 @@ class ValidationProcessEvent(models.Model):
     def can_transition_from_to(cls, current_status, new_status):
         allowed_transitions = {
             cls.StatusChoices.SUBMITTED: [
-                cls.StatusChoices.DRAFT,
                 cls.StatusChoices.IN_REVIEW,
                 cls.StatusChoices.CANCELLED,
             ],
             cls.StatusChoices.IN_REVIEW: [
                 cls.StatusChoices.DRAFT,
-                cls.StatusChoices.SUBMITTED,
+                cls.statusChoices.APPROVE,
+                cls.statusChoices.DISAPPROVED,
             ],
             cls.StatusChoices.DRAFT: [
-                cls.StatusChoices.IN_REVIEW,
                 cls.StatusChoices.SUBMITTED,
             ],
-            cls.StatusChoices.APPROVED: [
-                cls.StatusChoices.IN_REVIEW,
-            ],
-            cls.StatusChoices.DISAPPROVED: [
-                cls.StatusChoices.IN_REVIEW,
-            ],
+            cls.StatusChoices.APPROVED: [],
+            cls.StatusChoices.DISAPPROVED: [],
             cls.StatusChoices.CANCELLED: [
-                cls.StatusChoices.DRAFT,
                 cls.StatusChoices.SUBMITTED,
             ],
         }
