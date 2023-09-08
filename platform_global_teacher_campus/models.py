@@ -145,8 +145,8 @@ class ValidationProcessEvent(models.Model):
             ],
             cls.StatusChoices.IN_REVIEW: [
                 cls.StatusChoices.DRAFT,
-                cls.statusChoices.APPROVE,
-                cls.statusChoices.DISAPPROVED,
+                cls.StatusChoices.APPROVEd,
+                cls.StatusChoices.DISAPPROVED,
             ],
             cls.StatusChoices.DRAFT: [
                 cls.StatusChoices.SUBMITTED,
