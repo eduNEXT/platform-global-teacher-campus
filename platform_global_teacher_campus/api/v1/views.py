@@ -116,9 +116,11 @@ def update_validation_process_state(request, course_id):
 
         if new_status == ValidationProcessEvent.StatusChoices.IN_REVIEW:
             validation_process.current_validation_user = request.user
+            validation_process.save()
             
         if new_status == ValidationProcessEvent.StatusChoices.SUBMITTED and validation_process.validation_body.is_validator(request.user):
             validation_process.current_validation_user = None
+            validation_process.save()
 
         if new_status == ValidationProcessEvent.StatusChoices.APPROVED:
             publish_result = publish_course(validation_process.course, request.user)
