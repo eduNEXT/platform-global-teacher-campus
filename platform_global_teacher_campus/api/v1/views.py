@@ -124,13 +124,10 @@ def update_validation_process_state(request, course_id):
             
         if new_status == ValidationProcessEvent.StatusChoices.SUBMITTED and validation_process.validation_body.is_validator(request.user):
             validation_process.current_validation_user = None
-            validation_process.save()
-            
+            validation_process.save()      
 
         if new_status == ValidationProcessEvent.StatusChoices.APPROVED:
             publish_result = publish_course(validation_process.course, request.user)
-            validator_course_access_role = CourseAccessRole.objects.filter(user=request.user, course_id=course_id, org=validation_process.organization.name)
-            validator_course_access_role.delete()
 
         serializer.save(validation_process=validation_process)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
