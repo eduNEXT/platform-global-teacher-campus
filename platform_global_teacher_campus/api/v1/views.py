@@ -2,27 +2,28 @@
 API v1 views.
 """
 
+from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
+from rest_framework import status, viewsets
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+from platform_global_teacher_campus.api.v1.serializers import (
+    CourseCategorySerializer,
+    ValidationBodySerializer,
+    ValidationProcessEventSerializer,
+    ValidationProcessSerializer,
+)
+from platform_global_teacher_campus.edxapp_wrapper.course_roles import get_course_staff_role
+from platform_global_teacher_campus.edxapp_wrapper.courses import get_course_overview
+from platform_global_teacher_campus.edxapp_wrapper.users import get_user_model
 from platform_global_teacher_campus.models import (
     CourseCategory,
     ValidationBody,
     ValidationProcess,
-    ValidationProcessEvent
+    ValidationProcessEvent,
 )
-from rest_framework import viewsets
-from rest_framework.response import Response
-from rest_framework import status
-from platform_global_teacher_campus.api.v1.serializers import (
-    CourseCategorySerializer,
-    ValidationBodySerializer,
-    ValidationProcessSerializer,
-    ValidationProcessEventSerializer
-)
-from platform_global_teacher_campus.edxapp_wrapper.users import get_user_model
-from platform_global_teacher_campus.edxapp_wrapper.course_roles import get_course_staff_role
-from platform_global_teacher_campus.edxapp_wrapper.courses import get_course_overview
-from rest_framework.permissions import IsAuthenticated
-from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
-from rest_framework.decorators import api_view, permission_classes, authentication_classes
 
 User = get_user_model()
 CourseStaffRole = get_course_staff_role()
@@ -45,14 +46,14 @@ class ValidationBodyViewSet(viewsets.ModelViewSet):
 
 class ValidationProcessViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
-    authentication_classes = (JwtAuthentication,)
+    authentication_classes = (JwtAuthentication, SessionAuthentication,)
     queryset = ValidationProcess.objects.all()
     serializer_class = ValidationProcessSerializer
 
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-@authentication_classes([JwtAuthentication])
+@authentication_classes([JwtAuthentication, SessionAuthentication])
 def submit_validation_process(request, course_id):
     course_id = CourseOverview.objects.get(id=course_id).id
 
@@ -79,7 +80,7 @@ def submit_validation_process(request, course_id):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-@authentication_classes([JwtAuthentication])
+@authentication_classes([JwtAuthentication, SessionAuthentication])
 def update_validation_process_state(request, course_id):
     course_id = CourseOverview.objects.get(id=course_id).id
     try:
@@ -113,7 +114,7 @@ def update_validation_process_state(request, course_id):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-@authentication_classes([JwtAuthentication])
+@authentication_classes([JwtAuthentication, SessionAuthentication])
 def info_validation_process(request, course_id):
     try:
         validation_process = ValidationProcess.objects.get(course_id=course_id)
