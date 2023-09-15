@@ -25,6 +25,7 @@ from platform_global_teacher_campus.edxapp_wrapper.course_roles import (
     get_global_staff
 )
 from platform_global_teacher_campus.edxapp_wrapper.courses import get_course_overview
+from platform_global_teacher_campus.edxapp_wrapper.course_access_role import get_course_access_role
 from rest_framework.permissions import IsAuthenticated
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
@@ -34,6 +35,7 @@ CourseStaffRole = get_course_staff_role()
 CourseAccessRole = get_course_access_role()
 CourseOverview = get_course_overview()
 GlobalStaff = get_global_staff()
+CourseAccessRole = get_course_access_role()
 
 
 class CourseCategoryViewSet(viewsets.ModelViewSet):
@@ -121,9 +123,12 @@ def update_validation_process_state(request, course_id):
         if new_status == ValidationProcessEvent.StatusChoices.SUBMITTED and validation_process.validation_body.is_validator(request.user):
             validation_process.current_validation_user = None
             validation_process.save()
+            
 
         if new_status == ValidationProcessEvent.StatusChoices.APPROVED:
             publish_result = publish_course(validation_process.course, request.user)
+            validator_course_access_role = CourseAccessRole.objects.filter(user=request.user, course_id=course_id, org=validation_process.organization.name)
+            validator_course_access_role.delete()
 
         serializer.save(validation_process=validation_process)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
