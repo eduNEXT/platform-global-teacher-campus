@@ -86,7 +86,7 @@ class ValidationBodySerializer(serializers.ModelSerializer):
 class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseOverview
-        fields = ["id"]
+        fields = ["id", "display_name"]
 
 
 class ValidationRejectionReasonSerializer(serializers.ModelSerializer):
@@ -96,10 +96,15 @@ class ValidationRejectionReasonSerializer(serializers.ModelSerializer):
 
 
 class ValidationProcessEventSerializer(serializers.ModelSerializer):
+    username = serializers.SerializerMethodField()
 
     class Meta:
         model = ValidationProcessEvent
         fields = "__all__"
+
+    def get_username(self, obj):
+    # Retrieve the username of the user associated with the event
+        return obj.user.username if obj.user else None
 
 
 class ValidationProcessSerializer(serializers.ModelSerializer):
@@ -109,6 +114,7 @@ class ValidationProcessSerializer(serializers.ModelSerializer):
     current_validation_user = serializers.IntegerField(read_only=True)
     validation_body = ValidationBodySerializer(read_only=True)
     events = ValidationProcessEventSerializer(many=True, read_only=True)
+    username = serializers.SerializerMethodField()
 
     course_id = serializers.CharField(write_only=True)
     validation_body_id = serializers.IntegerField(write_only=True)
@@ -212,3 +218,7 @@ class ValidationProcessSerializer(serializers.ModelSerializer):
         self.apply_validation_rules(validation_process, self.context['request'].user)
 
         return validation_process
+    
+    def get_username(self, obj):
+    # Retrieve the username of the user associated with the event
+        return obj.current_validation_user.username if obj.current_validation_user else None
