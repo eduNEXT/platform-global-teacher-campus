@@ -124,7 +124,6 @@ def info_validation_process(request, course_id):
     try:
         validation_process = ValidationProcess.objects.get(course_id=course_id)
         serializer = ValidationProcessSerializer(validation_process)  # Serialize the ValidationProcess object
-        print(serializer.data)
         return Response(serializer.data)  # Return serialized data as JSON
     except ValidationProcess.DoesNotExist:
         return Response({"error": "Validation process not found"}, status=404)
