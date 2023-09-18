@@ -101,6 +101,14 @@ class ValidationProcessEvent(models.Model):
         CANCELLED = "cncl", "Cancelled"
         EXEMPT = "exmp", "Exempt"
 
+    class RoleChoices(models.TextChoices):
+        BETA = "beta", "beta"
+        INSTRUCTOR = "instructor", "instructor"
+        STAFF = "staff", "staff"
+        LIMITED_STAFF = "limited_staff", "limited_staff"
+        CCX_COACH = "ccx_coach", "ccx_coach"
+        DATA_RESEARCHER = "data_researcher", "data_researcher"
+
     validation_process = models.ForeignKey(
         ValidationProcess,
         on_delete=models.SET_NULL,
@@ -136,7 +144,7 @@ class ValidationProcessEvent(models.Model):
                 cls.StatusChoices.DISAPPROVED,
             ])
             if status == ValidationProcessEvent.StatusChoices.IN_REVIEW:
-                CourseAccessRole.objects.create(user=user, course_id=validation_process.course.id, org=validation_process.organization.name, role="staff")
+                CourseAccessRole.objects.create(user=user, course_id=validation_process.course.id, org=validation_process.organization.name, role=cls.RoleChoices.STAFF)
             
 
         return status in allowed_status
