@@ -105,7 +105,7 @@ class ValidationProcessEvent(models.Model):
         null=True,
         related_name="events"
     )
-    create_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=5, choices=StatusChoices.choices, default="subm")
     comment = models.TextField()
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
