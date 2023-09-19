@@ -7,11 +7,13 @@ from platform_global_teacher_campus.edxapp_wrapper.courses import get_course_ove
 from platform_global_teacher_campus.edxapp_wrapper.users import get_user_model
 from platform_global_teacher_campus.edxapp_wrapper.organizations import get_organization_model
 from platform_global_teacher_campus.edxapp_wrapper.course_roles import get_course_staff_role
+from platform_global_teacher_campus.edxapp_wrapper.course_access_role import get_course_access_role
 
 CourseOverview = get_course_overview()
 User = get_user_model()
 Organization = get_organization_model()
 CourseStaffRole = get_course_staff_role()
+CourseAccessRole = get_course_access_role()
 
 
 class CourseCategory(models.Model):
@@ -99,6 +101,14 @@ class ValidationProcessEvent(models.Model):
         CANCELLED = "cncl", "Cancelled"
         EXEMPT = "exmp", "Exempt"
 
+    class RoleChoices(models.TextChoices):
+        BETA = "beta", "beta"
+        INSTRUCTOR = "instructor", "instructor"
+        STAFF = "staff", "staff"
+        LIMITED_STAFF = "limited_staff", "limited_staff"
+        CCX_COACH = "ccx_coach", "ccx_coach"
+        DATA_RESEARCHER = "data_researcher", "data_researcher"
+
     validation_process = models.ForeignKey(
         ValidationProcess,
         on_delete=models.SET_NULL,
@@ -133,6 +143,9 @@ class ValidationProcessEvent(models.Model):
                 cls.StatusChoices.APPROVED,
                 cls.StatusChoices.DISAPPROVED,
             ])
+            if status == ValidationProcessEvent.StatusChoices.IN_REVIEW:
+                CourseAccessRole.objects.create(user=user, course_id=validation_process.course.id, org=validation_process.organization.name, role=cls.RoleChoices.STAFF)
+            
 
         return status in allowed_status
 
