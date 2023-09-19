@@ -227,7 +227,7 @@ class ValidationStatusMessage(models.Model):
     def __str__(self):
         return self.get_status_display()
     
-    def get_the_status_message_by_course_id(self, course_id):
+    def get_the_status_message_by_course_id(course_id):
         # Info to be returned
         course_status = ""
         status_message = ""
@@ -239,10 +239,10 @@ class ValidationStatusMessage(models.Model):
             if current_event:
                 course_status = current_event.status
                 try:
-                    validation_status_message = self.objects.get(status=course_status)
+                    validation_status_message = ValidationStatusMessage.objects.get(status=course_status)
                     status_message = validation_status_message.message
                     status_button = validation_status_message.button
-                except self.DoesNotExist:
+                except ValidationStatusMessage.DoesNotExist:
                     pass
 
         return {
