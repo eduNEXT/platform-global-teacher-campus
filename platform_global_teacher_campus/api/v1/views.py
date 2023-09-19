@@ -130,6 +130,7 @@ def info_validation_process(request, course_id):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
+@authentication_classes([JwtAuthentication])
 def get_validation_processes(request):
     """
     Returns the validation processes visible for the username provided or the request user.
