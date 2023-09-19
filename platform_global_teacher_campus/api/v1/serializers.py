@@ -44,9 +44,14 @@ class OrganizationSerializer(serializers.ModelSerializer):
 
 
 class UserEmailSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ['email']
+        fields = ['id','email','username', 'full_name']
+    
+    def get_full_name(self, obj):
+        return f"{obj.first_name} {obj.last_name}" if obj.first_name and obj.last_name else None
 
 
 class ValidationBodySerializer(serializers.ModelSerializer):
@@ -86,7 +91,7 @@ class ValidationBodySerializer(serializers.ModelSerializer):
 class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseOverview
-        fields = ["id"]
+        fields = ["id", "display_name"]
 
 
 class ValidationRejectionReasonSerializer(serializers.ModelSerializer):
@@ -96,17 +101,24 @@ class ValidationRejectionReasonSerializer(serializers.ModelSerializer):
 
 
 class ValidationProcessEventSerializer(serializers.ModelSerializer):
+    user = UserEmailSerializer(read_only=True)
+    username = serializers.SerializerMethodField()
+    
 
     class Meta:
         model = ValidationProcessEvent
         fields = "__all__"
+
+    def get_username(self, obj):
+    # Retrieve the username of the user associated with the event
+        return obj.user.username if obj.user else None
 
 
 class ValidationProcessSerializer(serializers.ModelSerializer):
     course = CourseSerializer(read_only=True)
     categories = CourseCategorySerializer(many=True, read_only=True)
     organization = OrganizationSerializer(read_only=True)
-    current_validation_user = serializers.IntegerField(read_only=True)
+    current_validation_user = UserEmailSerializer(read_only=True)
     validation_body = ValidationBodySerializer(read_only=True)
     events = ValidationProcessEventSerializer(many=True, read_only=True)
 
@@ -114,6 +126,7 @@ class ValidationProcessSerializer(serializers.ModelSerializer):
     validation_body_id = serializers.IntegerField(write_only=True)
     category_ids = serializers.ListField(child=serializers.IntegerField(), write_only=True)
     comment = serializers.CharField(write_only=True)
+    
 
     class Meta:
         model = ValidationProcess
@@ -212,3 +225,5 @@ class ValidationProcessSerializer(serializers.ModelSerializer):
         self.apply_validation_rules(validation_process, self.context['request'].user)
 
         return validation_process
+    
+    
