@@ -14,7 +14,7 @@ def plugin_settings(settings):
     settings.REQUEST_UTILS_BACKEND = "platform_global_teacher_campus.edxapp_wrapper.backends.request_utils_v1"
 
 
-    plugin_context_processor = 'platform_global_teacher_campus.context_processor.validation_status_message'
+    plugin_context_processor = 'platform_global_teacher_campus.context_processor.validation_panel_info'
     if plugin_context_processor not in settings.TEMPLATES[0]['OPTIONS']['context_processors']:
         settings.TEMPLATES[0]['OPTIONS']['context_processors'] += (plugin_context_processor,)
     if plugin_context_processor not in settings.TEMPLATES[1]['OPTIONS']['context_processors']:

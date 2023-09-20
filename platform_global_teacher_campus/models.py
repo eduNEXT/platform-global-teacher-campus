@@ -247,6 +247,6 @@ class ValidationStatusMessage(models.Model):
 
         return {
             "course_status": course_status,
-            "status_message": status_message,
-            "status_button": status_button
+            "message": status_message,
+            "button": status_button
         }

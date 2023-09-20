@@ -8,8 +8,7 @@ from platform_global_teacher_campus.utils import (
 )
 
 
-
-def validation_status_message(request):
+def validation_panel_info(request):
     """
     It inserts info from validation_status_message to every request to render a mako or django template.
     """
@@ -18,8 +17,10 @@ def validation_status_message(request):
         if not course_id:
             course_id = get_course_id_from_block(request.path.replace("/container/", ""))
         validation_status_message = ValidationStatusMessage.get_the_status_message_by_course_id(course_id=course_id)
+        # Add the prefix validation_panel_ to be more clear in the frontend templates.
+        validation_panel_info = dict(map(lambda item: ("validation_panel_" + item[0], item[1]), validation_status_message.items()))
 
     except:
-        validation_status_message = None
+        validation_panel_info = None
 
-    return validation_status_message if validation_status_message else {}
+    return validation_panel_info if validation_panel_info else {}
