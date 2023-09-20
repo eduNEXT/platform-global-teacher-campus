@@ -6,7 +6,8 @@ from platform_global_teacher_campus.models import (
     CourseCategory,
     ValidationBody,
     ValidationProcess,
-    ValidationProcessEvent
+    ValidationProcessEvent,
+    ValidationRejectionReason,
 )
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -15,7 +16,8 @@ from platform_global_teacher_campus.api.v1.serializers import (
     CourseCategorySerializer,
     ValidationBodySerializer,
     ValidationProcessSerializer,
-    ValidationProcessEventSerializer
+    ValidationProcessEventSerializer,
+    ValidationRejectionReasonSerializer
 )
 from .publish_utils import publish_course
 from platform_global_teacher_campus.edxapp_wrapper.users import get_user_model
@@ -199,3 +201,19 @@ def get_validation_processes(request):
         status=status.HTTP_200_OK,
         data=serialized_validation_processes_allowed
     )
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JwtAuthentication])
+def get_rejection_reasons(request):
+    try:
+        rejection_reasons = ValidationRejectionReason.objects.all()
+        serializer = ValidationRejectionReasonSerializer(rejection_reasons, many=True)
+        
+    except Exception as e:
+        error_message = str(e)
+        return Response(
+            data={'error': error_message},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+    return Response(data=serializer.data, status=status.HTTP_200_OK)
