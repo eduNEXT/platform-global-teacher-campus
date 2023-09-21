@@ -6,7 +6,8 @@ from platform_global_teacher_campus.models import (
     CourseCategory,
     ValidationBody,
     ValidationProcess,
-    ValidationProcessEvent
+    ValidationProcessEvent,
+    ValidationRejectionReason,
 )
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -15,7 +16,8 @@ from platform_global_teacher_campus.api.v1.serializers import (
     CourseCategorySerializer,
     ValidationBodySerializer,
     ValidationProcessSerializer,
-    ValidationProcessEventSerializer
+    ValidationProcessEventSerializer,
+    ValidationRejectionReasonSerializer
 )
 from .publish_utils import publish_course
 from platform_global_teacher_campus.edxapp_wrapper.users import get_user_model
@@ -219,3 +221,15 @@ def user_info(request):
         "is_validator": request.user.validation_bodies.count() > 0
     }
     return Response(response, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JwtAuthentication])
+def get_rejection_reasons(request):
+    rejection_reasons = ValidationRejectionReason.objects.all()
+    
+    if not rejection_reasons:  # Check if the queryset is empty
+        return Response(data={}, status=status.HTTP_200_OK)
+    
+    serializer = ValidationRejectionReasonSerializer(rejection_reasons, many=True)
+    return Response(data=serializer.data, status=status.HTTP_200_OK)
