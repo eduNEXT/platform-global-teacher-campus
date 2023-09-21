@@ -205,6 +205,26 @@ def get_validation_processes(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 @authentication_classes([JwtAuthentication])
+def user_info(request):
+    """
+    Return extra info of the authenticated user.
+
+    **Example Requests**
+
+    GET /plugin-cvw/api/v1/user-info/
+
+    **Responses**
+
+    - 200: Success.
+    """
+    response = {
+        "is_validator": request.user.validation_bodies.count() > 0
+    }
+    return Response(response, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JwtAuthentication])
 def get_rejection_reasons(request):
     rejection_reasons = ValidationRejectionReason.objects.all()
     
