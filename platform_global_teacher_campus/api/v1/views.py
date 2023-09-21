@@ -206,14 +206,10 @@ def get_validation_processes(request):
 @permission_classes([IsAuthenticated])
 @authentication_classes([JwtAuthentication])
 def get_rejection_reasons(request):
-    try:
-        rejection_reasons = ValidationRejectionReason.objects.all()
-        serializer = ValidationRejectionReasonSerializer(rejection_reasons, many=True)
-        
-    except Exception as e:
-        error_message = str(e)
-        return Response(
-            data={'error': error_message},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+    rejection_reasons = ValidationRejectionReason.objects.all()
+    
+    if not rejection_reasons:  # Check if the queryset is empty
+        return Response(data={}, status=status.HTTP_200_OK)
+    
+    serializer = ValidationRejectionReasonSerializer(rejection_reasons, many=True)
     return Response(data=serializer.data, status=status.HTTP_200_OK)
