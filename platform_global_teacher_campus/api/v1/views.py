@@ -145,7 +145,7 @@ def info_validation_process(request, course_id):
         serializer = ValidationProcessSerializer(validation_process)  # Serialize the ValidationProcess object
         return Response(serializer.data)  # Return serialized data as JSON
     except ValidationProcess.DoesNotExist:
-        return Response({"error": "Validation process not found"}, status=404)
+        return Response({"error": "Validation process not found"}, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
