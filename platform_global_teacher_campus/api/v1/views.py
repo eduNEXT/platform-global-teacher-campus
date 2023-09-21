@@ -143,7 +143,7 @@ def info_validation_process(request, course_id):
         serializer = ValidationProcessSerializer(validation_process)  # Serialize the ValidationProcess object
         return Response(serializer.data)  # Return serialized data as JSON
     except ValidationProcess.DoesNotExist:
-        return Response({"error": "Validation process not found"}, status=404)
+        return Response({"error": "Validation process not found"}, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -199,3 +199,23 @@ def get_validation_processes(request):
         status=status.HTTP_200_OK,
         data=serialized_validation_processes_allowed
     )
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JwtAuthentication])
+def user_info(request):
+    """
+    Return extra info of the authenticated user.
+
+    **Example Requests**
+
+    GET /plugin-cvw/api/v1/user-info/
+
+    **Responses**
+
+    - 200: Success.
+    """
+    response = {
+        "is_validator": request.user.validation_bodies.count() > 0
+    }
+    return Response(response, status=status.HTTP_200_OK)

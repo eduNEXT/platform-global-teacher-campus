@@ -30,7 +30,7 @@ class CourseCategory(models.Model):
 
 
 class ValidationBody(models.Model):
-    validators = models.ManyToManyField(User)
+    validators = models.ManyToManyField(User, related_name="validation_bodies")
     name = models.TextField()
     admin_notes = models.TextField(default="")
     organizations = models.ManyToManyField(Organization)
