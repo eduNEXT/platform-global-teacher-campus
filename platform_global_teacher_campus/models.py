@@ -211,3 +211,42 @@ class ValidationRules(models.Model):
 
     class Meta:
         verbose_name_plural = "Validation Rules"
+
+
+class ValidationStatusMessage(models.Model):
+    """
+    Model to define a studio course message by the validation process status.
+    """
+    validation_process_status = ValidationProcessEvent.StatusChoices.choices
+    status = models.CharField(max_length=5, choices=validation_process_status, unique=True)
+    message = models.TextField(default="")
+    button = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.get_status_display()
+    
+    def get_the_status_message_by_course_id(course_id):
+        # Info to be returned
+        course_status = ""
+        status_message = ""
+        status_button = False
+
+        validation_process = ValidationProcess.get_from_course_id(course_id)
+        if validation_process:
+            current_event = validation_process.events.last()
+            if current_event:
+                course_status = current_event.status
+                try:
+                    validation_status_message = ValidationStatusMessage.objects.get(status=course_status)
+                    status_message = validation_status_message.message
+                    status_button = validation_status_message.button
+                except ValidationStatusMessage.DoesNotExist:
+                    pass
+
+        return {
+            "course_status": course_status,
+            "message": status_message,
+            "button": status_button
+        }
