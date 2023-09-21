@@ -160,6 +160,7 @@ class ValidationProcessEvent(models.Model):
                 cls.StatusChoices.DRAFT,
                 cls.StatusChoices.APPROVED,
                 cls.StatusChoices.DISAPPROVED,
+                cls.StatusChoices.SUBMITTED,
             ],
             cls.StatusChoices.DRAFT: [
                 cls.StatusChoices.SUBMITTED,
