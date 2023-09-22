@@ -33,7 +33,7 @@ class OrganizationSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'short_name']
 
 
-class UserEmailSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
 
     class Meta:
@@ -45,7 +45,7 @@ class UserEmailSerializer(serializers.ModelSerializer):
 
 
 class ValidationBodySerializer(serializers.ModelSerializer):
-    validators = UserEmailSerializer(many=True, read_only=True)
+    validators = UserSerializer(many=True, read_only=True)
     organizations = OrganizationSerializer(many=True, read_only=True)
 
     validator_emails = serializers.ListField(child=serializers.CharField(), write_only=True)
@@ -91,9 +91,8 @@ class ValidationRejectionReasonSerializer(serializers.ModelSerializer):
 
 
 class ValidationProcessEventSerializer(serializers.ModelSerializer):
-    user = UserEmailSerializer(read_only=True)
+    user = UserSerializer(read_only=True)
     username = serializers.SerializerMethodField()
-    
 
     class Meta:
         model = ValidationProcessEvent
@@ -108,7 +107,7 @@ class ValidationProcessSerializer(serializers.ModelSerializer):
     course = CourseSerializer(read_only=True)
     categories = CourseCategorySerializer(many=True, read_only=True)
     organization = OrganizationSerializer(read_only=True)
-    current_validation_user = UserEmailSerializer(read_only=True)
+    current_validation_user = UserSerializer(read_only=True)
     validation_body = ValidationBodySerializer(read_only=True)
     events = ValidationProcessEventSerializer(many=True, read_only=True)
 
