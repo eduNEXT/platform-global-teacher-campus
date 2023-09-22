@@ -99,42 +99,43 @@ def update_validation_process_state(request, course_id):
         current_status = current_event.status if current_event else None
     except ValidationProcess.DoesNotExist:
         return Response({"detail": "There is not a validation process for this course_id."}, status=status.HTTP_404_NOT_FOUND)
+    
+    if not request.data.get("status") or not request.data.get("comment"):
+        return Response({"details":"Remember to specify the status and comment in the request."}, status=status.HTTP_400_BAD_REQUEST)
 
-    data = {
-        "validation_process": validation_process.id,
-        "status": request.data.get("status"),
-        "comment": request.data.get("comment"),
-        "reason": request.data.get("reason"),
-    }
 
-    serializer = ValidationProcessEventSerializer(data=data)
-    if serializer.is_valid():
-        new_status = serializer.validated_data["status"]
+    new_status = request.data.get("status")
 
-        if not ValidationProcessEvent.can_user_update_to(request.user, validation_process, new_status):
-            return Response({"detail": "The user doesn't have permissions to do this action."}, status=status.HTTP_401_UNAUTHORIZED)
+    if not ValidationProcessEvent.can_user_update_to(request.user, validation_process, new_status):
+        return Response({"detail": "The user doesn't have permissions to do this action."}, status=status.HTTP_401_UNAUTHORIZED)
 
-        if not ValidationProcessEvent.can_transition_from_to(current_status, new_status):
-            error_msg = f"This action ({new_status}) can't be applied because the previous action is {current_status}"
-            return Response({"detail": error_msg}, status=status.HTTP_400_BAD_REQUEST)
+    if not ValidationProcessEvent.can_transition_from_to(current_status, new_status):
+        error_msg = f"This action ({new_status}) can't be applied because the previous action is {current_status}"
+        return Response({"detail": error_msg}, status=status.HTTP_400_BAD_REQUEST)
 
-        if new_status == ValidationProcessEvent.StatusChoices.IN_REVIEW:
-            validation_process.current_validation_user = request.user
-            validation_process.save()
-            
-        if new_status == ValidationProcessEvent.StatusChoices.SUBMITTED and validation_process.validation_body.is_validator(request.user):
-            validation_process.current_validation_user = None
-            validation_process.save()
-            
+    if new_status == ValidationProcessEvent.StatusChoices.IN_REVIEW:
+        validation_process.current_validation_user = request.user
+        validation_process.save()
+        
+    if new_status == ValidationProcessEvent.StatusChoices.SUBMITTED and validation_process.validation_body.is_validator(request.user):
+        validation_process.current_validation_user = None
+        validation_process.save()
 
-        if new_status == ValidationProcessEvent.StatusChoices.APPROVED:
-            publish_result = publish_course(validation_process.course, request.user)
-            validator_course_access_role = CourseAccessRole.objects.filter(user=request.user, course_id=course_id, org=validation_process.organization.name)
-            validator_course_access_role.delete()
+    if new_status == ValidationProcessEvent.StatusChoices.APPROVED:
+        publish_result = publish_course(validation_process.course, request.user)
+        validator_course_access_role = CourseAccessRole.objects.filter(user=request.user, course_id=course_id, org=validation_process.organization.name)
+        validator_course_access_role.delete()
 
-        serializer.save(validation_process=validation_process)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    process_event = ValidationProcessEvent.objects.create(
+        validation_process = validation_process,
+        status = new_status,
+        comment = request.data.get("comment"),
+        user = request.user,
+        reason = request.data.get("reason")
+    )
+
+    return Response(ValidationProcessEventSerializer(process_event).data, status=status.HTTP_201_CREATED)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
