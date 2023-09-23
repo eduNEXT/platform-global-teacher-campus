@@ -1,10 +1,6 @@
 """
 Module for serializers.
 """
-from django.contrib.auth import get_user_model
-from organizations.models import Organization
-from rest_framework import serializers
-
 import hashlib
 import hmac
 import json
@@ -12,9 +8,13 @@ import logging
 
 import requests
 import requests.exceptions
-from rest_framework import serializers
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from organizations.models import Organization
+from rest_framework import serializers
+
 from platform_global_teacher_campus.edxapp_wrapper.courses import get_course_overview
+from platform_global_teacher_campus.edxapp_wrapper.force_publish_command import get_course_key, get_modulestore
 from platform_global_teacher_campus.models import (
     CourseCategory,
     ValidationBody,
@@ -26,6 +26,8 @@ from platform_global_teacher_campus.models import (
 
 from .publish_utils import publish_course
 
+modulestore = get_modulestore()
+CourseKey = get_course_key()
 CourseOverview = get_course_overview()
 User = get_user_model()
 
@@ -194,6 +196,7 @@ class ValidationProcessSerializer(serializers.ModelSerializer):
             print(publish_result)
 
             # Sync course to Richie
+            course_key = CourseKey.from_string(str(validation_process.course))
             course = modulestore().get_course(course_key)
             enrollment_start = course.enrollment_start and course.enrollment_start.isoformat()
             enrollment_end = course.enrollment_end and course.enrollment_end.isoformat()
