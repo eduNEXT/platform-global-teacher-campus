@@ -133,5 +133,8 @@ setup(
         "lms.djangoapp": [
             "plugin_cvw = platform_global_teacher_campus.apps:PlatformGlobalTeacherCampusConfig",
         ],
+        "cms.djangoapp": [
+            "plugin_cvw = platform_global_teacher_campus.apps:PlatformGlobalTeacherCampusCMSConfig",
+        ],
     }
 )

@@ -10,6 +10,9 @@ django==3.2.20
     # via
     #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -r requirements/base.in
+    #   openedx-filters
+openedx-filters==1.0.0
+    # via -r requirements/base.in
 pytz==2023.3
     # via django
 sqlparse==0.4.4

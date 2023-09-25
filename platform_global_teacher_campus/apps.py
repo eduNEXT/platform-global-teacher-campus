@@ -19,4 +19,28 @@ class PlatformGlobalTeacherCampusConfig(AppConfig):
                 'relative_path': 'urls',
             }
         },
+        'settings_config': {
+            'lms.djangoapp': {
+                'common': {'relative_path': 'settings.common'},
+            },
+        },
+    }
+
+class PlatformGlobalTeacherCampusCMSConfig(PlatformGlobalTeacherCampusConfig):
+    """App configuration"""
+    name = 'platform_global_teacher_campus'
+
+    plugin_app = {
+        'url_config': {
+            'cms.djangoapp': {
+                'namespace': 'plugin-cvw',
+                'regex': r'^plugin-cvw/',
+                'relative_path': 'urls',
+            }
+        },
+        'settings_config': {
+            'cms.djangoapp': {
+                'common': {'relative_path': 'settings.common'}
+            },
+        },
     }
