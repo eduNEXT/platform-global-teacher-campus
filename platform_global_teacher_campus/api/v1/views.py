@@ -108,6 +108,7 @@ def update_validation_process_state(request, course_id):
     }
 
     serializer = ValidationProcessEventSerializer(data=data)
+    validator_course_access_role = CourseAccessRole.objects.filter(user=request.user, course_id=course_id, org=validation_process.organization.name)
     if serializer.is_valid():
         new_status = serializer.validated_data["status"]
 
@@ -126,10 +127,10 @@ def update_validation_process_state(request, course_id):
             validation_process.current_validation_user = None
             validation_process.save()
             
-
         if new_status == ValidationProcessEvent.StatusChoices.APPROVED:
             publish_result = publish_course(validation_process.course, request.user)
-            validator_course_access_role = CourseAccessRole.objects.filter(user=request.user, course_id=course_id, org=validation_process.organization.name)
+        
+        if new_status in [ValidationProcessEvent.StatusChoices.DRAFT, ValidationProcessEvent.StatusChoices.DISAPPROVED, ValidationProcessEvent.StatusChoices.CANCELLED, ValidationProcessEvent.StatusChoices.APPROVED]:
             validator_course_access_role.delete()
 
         serializer.save(validation_process=validation_process)
