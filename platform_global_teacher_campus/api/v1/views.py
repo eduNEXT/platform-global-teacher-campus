@@ -125,7 +125,7 @@ def update_validation_process_state(request, course_id):
         publish_result = publish_course(validation_process.course, request.user)
         
     if new_status in [ValidationProcessEvent.StatusChoices.DRAFT, ValidationProcessEvent.StatusChoices.DISAPPROVED, ValidationProcessEvent.StatusChoices.CANCELLED, ValidationProcessEvent.StatusChoices.APPROVED]:
-            validator_course_access_role.delete()
+        validator_course_access_role.delete()
 
     process_event = ValidationProcessEvent.objects.create(
         validation_process = validation_process,
