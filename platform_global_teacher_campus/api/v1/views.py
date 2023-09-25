@@ -110,6 +110,7 @@ def update_validation_process_state(request, course_id):
     serializer = ValidationProcessEventSerializer(data=data)
     if serializer.is_valid():
         new_status = serializer.validated_data["status"]
+        validator_course_access_role = CourseAccessRole.objects.filter(user=request.user, course_id=course_id, org=validation_process.organization.name)
 
         if not ValidationProcessEvent.can_user_update_to(request.user, validation_process, new_status):
             return Response({"detail": "The user doesn't have permissions to do this action."}, status=status.HTTP_401_UNAUTHORIZED)
@@ -128,6 +129,9 @@ def update_validation_process_state(request, course_id):
 
         if new_status == ValidationProcessEvent.StatusChoices.APPROVED:
             publish_result = publish_course(validation_process.course, request.user)
+            validator_course_access_role.delete()
+        
+        if new_status in [ValidationProcessEvent.StatusChoices.DRAFT, ValidationProcessEvent.StatusChoices.DISAPPROVED, ValidationProcessEvent.StatusChoices.CANCELLED]:
             validator_course_access_role = CourseAccessRole.objects.filter(user=request.user, course_id=course_id, org=validation_process.organization.name)
             validator_course_access_role.delete()
 
