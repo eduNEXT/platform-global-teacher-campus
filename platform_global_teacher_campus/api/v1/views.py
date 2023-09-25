@@ -129,9 +129,8 @@ def update_validation_process_state(request, course_id):
 
         if new_status == ValidationProcessEvent.StatusChoices.APPROVED:
             publish_result = publish_course(validation_process.course, request.user)
-            validator_course_access_role.delete()
         
-        if new_status in [ValidationProcessEvent.StatusChoices.DRAFT, ValidationProcessEvent.StatusChoices.DISAPPROVED, ValidationProcessEvent.StatusChoices.CANCELLED]:
+        if new_status in [ValidationProcessEvent.StatusChoices.DRAFT, ValidationProcessEvent.StatusChoices.DISAPPROVED, ValidationProcessEvent.StatusChoices.CANCELLED, ValidationProcessEvent.StatusChoices.APPROVED]:
             validator_course_access_role.delete()
 
         serializer.save(validation_process=validation_process)
