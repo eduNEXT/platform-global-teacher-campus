@@ -33,7 +33,7 @@ class OrganizationSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'short_name']
 
 
-class UserEmailSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
 
     class Meta:
@@ -45,7 +45,7 @@ class UserEmailSerializer(serializers.ModelSerializer):
 
 
 class ValidationBodySerializer(serializers.ModelSerializer):
-    validators = UserEmailSerializer(many=True, read_only=True)
+    validators = UserSerializer(many=True, read_only=True)
     organizations = OrganizationSerializer(many=True, read_only=True)
 
     validator_emails = serializers.ListField(child=serializers.CharField(), write_only=True)
@@ -91,9 +91,8 @@ class ValidationRejectionReasonSerializer(serializers.ModelSerializer):
 
 
 class ValidationProcessEventSerializer(serializers.ModelSerializer):
-    user = UserEmailSerializer(read_only=True)
+    user = UserSerializer(read_only=True)
     username = serializers.SerializerMethodField()
-    
 
     class Meta:
         model = ValidationProcessEvent
@@ -108,7 +107,7 @@ class ValidationProcessSerializer(serializers.ModelSerializer):
     course = CourseSerializer(read_only=True)
     categories = CourseCategorySerializer(many=True, read_only=True)
     organization = OrganizationSerializer(read_only=True)
-    current_validation_user = UserEmailSerializer(read_only=True)
+    current_validation_user = UserSerializer(read_only=True)
     validation_body = ValidationBodySerializer(read_only=True)
     events = ValidationProcessEventSerializer(many=True, read_only=True)
 
@@ -147,23 +146,22 @@ class ValidationProcessSerializer(serializers.ModelSerializer):
             data = {
                 'comment': 'this course was automatic published due to exempt rules.',
                 'status': ValidationProcessEvent.StatusChoices.EXEMPT,
-                'validation_process': validation_process.id
+                'validation_process': validation_process,
+                'user': user
             }
-            process_event_serializer = ValidationProcessEventSerializer(data=data)
-            process_event_serializer.is_valid(raise_exception=True)
-            process_event_serializer.save()
+            self.create_event(data=data)
 
             # Publish course
             publish_result = publish_course(validation_process.course, user)
             print(publish_result)
 
     def create_event(self, data) -> None:
-        data.update({
-            'status': ValidationProcessEvent.StatusChoices.SUBMITTED
-        })
-        process_event_serializer = ValidationProcessEventSerializer(data=data)
-        process_event_serializer.is_valid(raise_exception=True)
-        process_event_serializer.save()
+        ValidationProcessEvent.objects.create(
+            validation_process = data.get("validation_process"),
+            status = data.get("status"),
+            comment = data.get("comment"),
+            user = data.get("user")
+        )
 
     def create(self, validated_data):
         course_id = validated_data.pop('course_id')
@@ -193,13 +191,12 @@ class ValidationProcessSerializer(serializers.ModelSerializer):
         validation_process.categories.add(*categories)
 
         self.create_event(data={
-            'validation_process': validation_process.id,
+            'status': ValidationProcessEvent.StatusChoices.SUBMITTED,
+            'validation_process': validation_process,
             'comment': submitted_comment,
-            'user': self.context['request'].user.id,
+            'user': self.context['request'].user,
         })
 
         self.apply_validation_rules(validation_process, self.context['request'].user)
 
         return validation_process
-    
-    
