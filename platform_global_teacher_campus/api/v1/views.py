@@ -133,7 +133,7 @@ def update_validation_process_state(request, course_id):
         status = new_status,
         comment = request.data.get("comment"),
         user = request.user,
-        reason = request.data.get("reason")
+        reason_id = request.data.get("reason")
     )
 
     return Response(ValidationProcessEventSerializer(process_event).data, status=status.HTTP_201_CREATED)
