@@ -99,10 +99,10 @@ def update_validation_process_state(request, course_id):
         current_status = current_event.status if current_event else None
     except ValidationProcess.DoesNotExist:
         return Response({"detail": "There is not a validation process for this course_id."}, status=status.HTTP_404_NOT_FOUND)
-    
+
     if not request.data.get("status") or not request.data.get("comment"):
         return Response({"details":"Remember to specify the status and comment in the request."}, status=status.HTTP_400_BAD_REQUEST)
-    
+
     validator_course_access_role = CourseAccessRole.objects.filter(user=request.user, course_id=course_id, org=validation_process.organization.name)
     new_status = request.data.get("status")
 
@@ -116,15 +116,15 @@ def update_validation_process_state(request, course_id):
     if new_status == ValidationProcessEvent.StatusChoices.IN_REVIEW:
         validation_process.current_validation_user = request.user
         validation_process.save()
-        
+
     if new_status == ValidationProcessEvent.StatusChoices.SUBMITTED and validation_process.validation_body.is_validator(request.user):
         validation_process.current_validation_user = None
         validation_process.save()
 
     if new_status == ValidationProcessEvent.StatusChoices.APPROVED:
         publish_result = publish_course(validation_process.course, request.user)
-        
-    if new_status in [ValidationProcessEvent.StatusChoices.DRAFT, ValidationProcessEvent.StatusChoices.DISAPPROVED, ValidationProcessEvent.StatusChoices.CANCELLED, ValidationProcessEvent.StatusChoices.APPROVED]:
+
+    if new_status in [ValidationProcessEvent.StatusChoices.DRAFT, ValidationProcessEvent.StatusChoices.DISAPPROVED, ValidationProcessEvent.StatusChoices.APPROVED]:
         validator_course_access_role.delete()
 
     process_event = ValidationProcessEvent.objects.create(
@@ -187,7 +187,7 @@ def get_validation_processes(request):
     course_access_roles = list(CourseAccessRole.objects.filter(user=user))
     course_accesses = [course_access.course_id for course_access in course_access_roles]
     query_course_access = ValidationProcess.objects.filter(course__in=course_accesses)
-    
+
     # Check the validation processes by their Validation Bodies
     validation_bodies = list(ValidationBody.objects.filter(validators=user))
     query_validation_body = ValidationProcess.objects.filter(validation_body__in=validation_bodies)
@@ -199,9 +199,9 @@ def get_validation_processes(request):
     ]
 
     return Response(
-        status=status.HTTP_200_OK,
-        data=serialized_validation_processes_allowed
-    )
+status=status.HTTP_200_OK,
+data=serialized_validation_processes_allowed
+)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -228,9 +228,9 @@ def user_info(request):
 @authentication_classes([JwtAuthentication])
 def get_rejection_reasons(request):
     rejection_reasons = ValidationRejectionReason.objects.all()
-    
+
     if not rejection_reasons:  # Check if the queryset is empty
         return Response(data={}, status=status.HTTP_200_OK)
-    
+
     serializer = ValidationRejectionReasonSerializer(rejection_reasons, many=True)
     return Response(data=serializer.data, status=status.HTTP_200_OK)
