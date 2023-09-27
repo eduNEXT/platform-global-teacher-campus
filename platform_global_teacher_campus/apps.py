@@ -21,10 +21,12 @@ class PlatformGlobalTeacherCampusConfig(AppConfig):
         },
         'settings_config': {
             'lms.djangoapp': {
+                'test': {'relative_path': 'settings.test'},
                 'common': {'relative_path': 'settings.common'},
             },
         },
     }
+
 
 class PlatformGlobalTeacherCampusCMSConfig(PlatformGlobalTeacherCampusConfig):
     """App configuration"""
@@ -40,7 +42,8 @@ class PlatformGlobalTeacherCampusCMSConfig(PlatformGlobalTeacherCampusConfig):
         },
         'settings_config': {
             'cms.djangoapp': {
-                'common': {'relative_path': 'settings.common'}
+                'test': {'relative_path': 'settings.test'},
+                'common': {'relative_path': 'settings.common'},
             },
         },
     }

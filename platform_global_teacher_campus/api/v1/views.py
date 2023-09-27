@@ -1,7 +1,26 @@
 """
 API v1 views.
 """
+from django.contrib.auth import get_user_model
+from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
+from rest_framework import status, viewsets
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
+from platform_global_teacher_campus.api.v1.serializers import (
+    CourseCategorySerializer,
+    ValidationBodySerializer,
+    ValidationProcessEventSerializer,
+    ValidationProcessSerializer,
+    ValidationRejectionReasonSerializer,
+)
+from platform_global_teacher_campus.edxapp_wrapper.course_roles import (
+    get_course_access_role,
+    get_course_staff_role,
+    get_global_staff,
+)
+from platform_global_teacher_campus.edxapp_wrapper.courses import get_course_overview
 from platform_global_teacher_campus.models import (
     CourseCategory,
     ValidationBody,
@@ -9,32 +28,11 @@ from platform_global_teacher_campus.models import (
     ValidationProcessEvent,
     ValidationRejectionReason,
 )
-from rest_framework import viewsets
-from rest_framework.response import Response
-from rest_framework import status
-from platform_global_teacher_campus.api.v1.serializers import (
-    CourseCategorySerializer,
-    ValidationBodySerializer,
-    ValidationProcessSerializer,
-    ValidationProcessEventSerializer,
-    ValidationRejectionReasonSerializer
-)
+
 from .publish_utils import publish_course
-from platform_global_teacher_campus.edxapp_wrapper.users import get_user_model
-from platform_global_teacher_campus.edxapp_wrapper.course_roles import (
-    get_course_staff_role,
-    get_course_access_role,
-    get_global_staff
-)
-from platform_global_teacher_campus.edxapp_wrapper.courses import get_course_overview
-from platform_global_teacher_campus.edxapp_wrapper.course_access_role import get_course_access_role
-from rest_framework.permissions import IsAuthenticated
-from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
-from rest_framework.decorators import api_view, permission_classes, authentication_classes
 
 User = get_user_model()
 CourseStaffRole = get_course_staff_role()
-CourseAccessRole = get_course_access_role()
 CourseOverview = get_course_overview()
 GlobalStaff = get_global_staff()
 CourseAccessRole = get_course_access_role()
@@ -44,14 +42,14 @@ class CourseCategoryViewSet(viewsets.ModelViewSet):
     queryset = CourseCategory.objects.all()
     serializer_class = CourseCategorySerializer
     pagination_class = None  # This disables pagination
-    http_method_names = ['get']  # Only allow GET requests 
+    http_method_names = ['get']  # Only allow GET requests
 
 
 class ValidationBodyViewSet(viewsets.ModelViewSet):
     queryset = ValidationBody.objects.all()
     serializer_class = ValidationBodySerializer
     pagination_class = None  # This disables pagination
-    http_method_names = ['get']  # Only allow GET requests 
+    http_method_names = ['get']  # Only allow GET requests
 
 
 class ValidationProcessViewSet(viewsets.ModelViewSet):
@@ -68,10 +66,12 @@ def submit_validation_process(request, course_id):
     course_id = CourseOverview.objects.get(id=course_id).id
 
     if ValidationProcess.get_from_course_id(course_id):
-        return Response({"detail": "There is already a validation process for this course."}, status=status.HTTP_409_CONFLICT)
+        return Response({"detail": "There is already a validation process for this course."},
+                        status=status.HTTP_409_CONFLICT)
 
     if not ValidationProcess.can_user_submit(request.user, course_id):
-        return Response({"detail": "The user doesn't have permissions to do this action."}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({"detail": "The user doesn't have permissions to do this action."},
+                        status=status.HTTP_401_UNAUTHORIZED)
 
     data = {
         "course_id": str(course_id),
@@ -98,16 +98,20 @@ def update_validation_process_state(request, course_id):
         current_event = validation_process.events.last()
         current_status = current_event.status if current_event else None
     except ValidationProcess.DoesNotExist:
-        return Response({"detail": "There is not a validation process for this course_id."}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"detail": "There is not a validation process for this course_id."},
+                        status=status.HTTP_404_NOT_FOUND)
 
     if not request.data.get("status") or not request.data.get("comment"):
-        return Response({"details":"Remember to specify the status and comment in the request."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"details": "Remember to specify the status and comment in the request."},
+                        status=status.HTTP_400_BAD_REQUEST)
 
-    validator_course_access_role = CourseAccessRole.objects.filter(user=request.user, course_id=course_id, org=validation_process.organization.name)
+    validator_course_access_role = CourseAccessRole.objects.filter(
+        user=request.user, course_id=course_id, org=validation_process.organization.name)
     new_status = request.data.get("status")
 
     if not ValidationProcessEvent.can_user_update_to(request.user, validation_process, new_status):
-        return Response({"detail": "The user doesn't have permissions to do this action."}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({"detail": "The user doesn't have permissions to do this action."},
+                        status=status.HTTP_401_UNAUTHORIZED)
 
     if not ValidationProcessEvent.can_transition_from_to(current_status, new_status):
         error_msg = f"This action ({new_status}) can't be applied because the previous action is {current_status}"
@@ -117,26 +121,29 @@ def update_validation_process_state(request, course_id):
         validation_process.current_validation_user = request.user
         validation_process.save()
 
-    if new_status == ValidationProcessEvent.StatusChoices.SUBMITTED and validation_process.validation_body.is_validator(request.user):
+    if new_status == ValidationProcessEvent.StatusChoices.SUBMITTED and validation_process.validation_body.is_validator(
+            request.user):
         validation_process.current_validation_user = None
         validator_course_access_role.delete()
         validation_process.save()
 
     if new_status == ValidationProcessEvent.StatusChoices.APPROVED:
-        publish_result = publish_course(validation_process.course, request.user)
+        publish_course(validation_process.course, request.user)
 
-    if new_status in [ValidationProcessEvent.StatusChoices.DRAFT, ValidationProcessEvent.StatusChoices.DISAPPROVED, ValidationProcessEvent.StatusChoices.APPROVED]:
+    if new_status in [ValidationProcessEvent.StatusChoices.DRAFT, ValidationProcessEvent.StatusChoices.DISAPPROVED,
+                      ValidationProcessEvent.StatusChoices.APPROVED]:
         validator_course_access_role.delete()
 
     process_event = ValidationProcessEvent.objects.create(
-        validation_process = validation_process,
-        status = new_status,
-        comment = request.data.get("comment"),
-        user = request.user,
-        reason_id = request.data.get("reason")
+        validation_process=validation_process,
+        status=new_status,
+        comment=request.data.get("comment"),
+        user=request.user,
+        reason_id=request.data.get("reason")
     )
 
     return Response(ValidationProcessEventSerializer(process_event).data, status=status.HTTP_201_CREATED)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -148,6 +155,7 @@ def info_validation_process(request, course_id):
         return Response(serializer.data)  # Return serialized data as JSON
     except ValidationProcess.DoesNotExist:
         return Response({"error": "Validation process not found"}, status=status.HTTP_404_NOT_FOUND)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -204,6 +212,7 @@ def get_validation_processes(request):
         data=serialized_validation_processes_allowed
     )
 
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 @authentication_classes([JwtAuthentication])
@@ -223,6 +232,7 @@ def user_info(request):
         "is_validator": request.user.validation_bodies.count() > 0
     }
     return Response(response, status=status.HTTP_200_OK)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

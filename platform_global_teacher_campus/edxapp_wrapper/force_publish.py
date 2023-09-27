@@ -6,6 +6,7 @@ from importlib import import_module
 
 from django.conf import settings
 
+
 def get_force_publish_course():
     """ Gets force publish course class from edxapp. """
 

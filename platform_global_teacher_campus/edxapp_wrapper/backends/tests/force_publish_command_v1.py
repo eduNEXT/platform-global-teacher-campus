@@ -2,10 +2,7 @@
 Backend for Force Publish Course Command.
 """
 
-from cms.djangoapps.contentstore.management.commands.utils import get_course_versions  # pylint: disable=import-error
-from xmodule.modulestore.django import modulestore  # pylint: disable=import-error
-from xmodule.modulestore.mixed import MixedModuleStore  # pylint: disable=import-error
-from xmodule.modulestore.split_mongo.split_draft import DraftVersioningModuleStore  # pylint: disable=import-error
+from unittest.mock import MagicMock
 
 
 def get_force_publish_course_command():
@@ -14,7 +11,7 @@ def get_force_publish_course_command():
     making the published branch point to the same structure as the draft branch.
     """
 
-    return DraftVersioningModuleStore
+    return MagicMock
 
 
 def get_course_versions_branches():
@@ -22,7 +19,7 @@ def get_course_versions_branches():
     Gets fetches the latest course versions.
     """
 
-    return get_course_versions
+    return MagicMock
 
 
 def get_modulestore():
@@ -30,7 +27,7 @@ def get_modulestore():
     Gets a modulestore wrapper.
     """
 
-    return modulestore
+    return MagicMock
 
 
 def get_mixed_module_store():
@@ -38,4 +35,4 @@ def get_mixed_module_store():
     Gets ModuleStore knows how to route requests to the right persistence ms.
     """
 
-    return MixedModuleStore
+    return MagicMock

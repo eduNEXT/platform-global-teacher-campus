@@ -2,8 +2,8 @@
 
 from django.urls import include, path
 
-app_name = 'platform_global_teacher_campus'  # pylint: disable=invalid-name
+app_name = 'platform_global_teacher_campus'
 
-urlpatterns = [  # pylint: disable=invalid-name
+urlpatterns = [
     path('v1/', include(('platform_global_teacher_campus.api.v1.urls', app_name), namespace="pgtc-api")),
 ]

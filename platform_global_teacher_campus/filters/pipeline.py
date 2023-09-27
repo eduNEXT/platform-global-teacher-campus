@@ -5,16 +5,16 @@ The pipeline module defines custom Filters functions that are used in openedx-fi
 import logging
 
 from openedx_filters import PipelineStep
-from platform_global_teacher_campus.edxapp_wrapper.force_publish import get_force_publish_course
+from organizations.models import Organization
+
 from platform_global_teacher_campus.edxapp_wrapper.courses import get_course_overview
-from platform_global_teacher_campus.edxapp_wrapper.organizations import get_organization_model
+from platform_global_teacher_campus.edxapp_wrapper.force_publish import get_force_publish_course
 from platform_global_teacher_campus.models import ValidationProcess, ValidationProcessEvent, ValidationRules
 
 log = logging.getLogger(__name__)
 
 ForcePublishCourseRenderStarted = get_force_publish_course()
 CourseOverview = get_course_overview()
-Organization = get_organization_model()
 
 
 class StopForcePublishCourseRender(PipelineStep):
@@ -34,6 +34,7 @@ class StopForcePublishCourseRender(PipelineStep):
             }
         },
     """
+
     def run_filter(self, context, *args, **kwargs):  # pylint: disable=arguments-differ
         """
         Pipeline step that stop force publish course page.
@@ -58,7 +59,13 @@ class ModifyRequestToBlockCourse(PipelineStep):
             }
         },
     """
-    def run_filter(self, request, course_key, *args, **kwargs):  # pylint: disable=arguments-differ
+
+    def run_filter(     # pylint: disable=arguments-differ, inconsistent-return-statements
+            self,
+            request,
+            course_key,
+            *args,
+            **kwargs):
         """
         Pipeline step that stop publish course page.
         """

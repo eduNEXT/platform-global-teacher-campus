@@ -6,6 +6,7 @@ from importlib import import_module
 
 from django.conf import settings
 
+
 def get_user_model():
     """ Gets the course overview model from edxapp. """
 
