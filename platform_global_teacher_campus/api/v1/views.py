@@ -119,6 +119,7 @@ def update_validation_process_state(request, course_id):
 
     if new_status == ValidationProcessEvent.StatusChoices.SUBMITTED and validation_process.validation_body.is_validator(request.user):
         validation_process.current_validation_user = None
+        validator_course_access_role.delete()
         validation_process.save()
 
     if new_status == ValidationProcessEvent.StatusChoices.APPROVED:
@@ -199,9 +200,9 @@ def get_validation_processes(request):
     ]
 
     return Response(
-status=status.HTTP_200_OK,
-data=serialized_validation_processes_allowed
-)
+        status=status.HTTP_200_OK,
+        data=serialized_validation_processes_allowed
+    )
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
