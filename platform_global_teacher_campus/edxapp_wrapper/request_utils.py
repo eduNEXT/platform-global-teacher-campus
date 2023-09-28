@@ -6,6 +6,7 @@ from importlib import import_module
 
 from django.conf import settings
 
+
 def get_course_id_from_url():
     """ Gets the course_id_from_url function. """
 

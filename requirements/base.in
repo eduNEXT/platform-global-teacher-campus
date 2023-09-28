@@ -2,4 +2,8 @@
 -c constraints.txt
 
 Django             # Web application framework
+djangorestframework
+edx-drf-extensions
 openedx-filters==1.0.0
+edx-organizations
+edx-opaque-keys

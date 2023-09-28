@@ -1,29 +1,39 @@
+"""
+Module for serializers.
+"""
+from django.contrib.auth import get_user_model
+from organizations.models import Organization
 from rest_framework import serializers
+
 from platform_global_teacher_campus.edxapp_wrapper.courses import get_course_overview
-from platform_global_teacher_campus.edxapp_wrapper.users import get_user_model
-from platform_global_teacher_campus.edxapp_wrapper.organizations import get_organization_model
-from .publish_utils import publish_course
 from platform_global_teacher_campus.models import (
-    ValidationBody,
     CourseCategory,
+    ValidationBody,
     ValidationProcess,
     ValidationProcessEvent,
     ValidationRejectionReason,
     ValidationRules,
 )
 
+from .publish_utils import publish_course
+
 CourseOverview = get_course_overview()
 User = get_user_model()
-Organization = get_organization_model()
 
 
 class CourseCategorySerializer(serializers.ModelSerializer):
+    """
+    The serializer for the CourseCategory model.
+    """
     class Meta:
         model = CourseCategory
         fields = '__all__'
 
 
 class OrganizationSerializer(serializers.ModelSerializer):
+    """
+    The serializer for the Organization model.
+    """
     id = serializers.IntegerField()
     name = serializers.ReadOnlyField()
     short_name = serializers.ReadOnlyField()
@@ -34,17 +44,23 @@ class OrganizationSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """
+    The serializer for the User model.
+    """
     full_name = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['id','email','username', 'full_name']
-    
+        fields = ['id', 'email', 'username', 'full_name']
+
     def get_full_name(self, obj):
         return f"{obj.first_name} {obj.last_name}" if obj.first_name and obj.last_name else None
 
 
 class ValidationBodySerializer(serializers.ModelSerializer):
+    """
+    The serializer for the ValidationBody model.
+    """
     validators = UserSerializer(many=True, read_only=True)
     organizations = OrganizationSerializer(many=True, read_only=True)
 
@@ -79,18 +95,27 @@ class ValidationBodySerializer(serializers.ModelSerializer):
 
 
 class CourseSerializer(serializers.ModelSerializer):
+    """
+    The serializer for the CourseOverview model.
+    """
     class Meta:
         model = CourseOverview
         fields = ["id", "display_name"]
 
 
 class ValidationRejectionReasonSerializer(serializers.ModelSerializer):
+    """
+    The serializer for the ValidationRejectionReason model.
+    """
     class Meta:
         model = ValidationRejectionReason
         fields = "__all__"
 
 
 class ValidationProcessEventSerializer(serializers.ModelSerializer):
+    """
+    The serializer for the ValidationProcessEvent model.
+    """
     user = UserSerializer(read_only=True)
     username = serializers.SerializerMethodField()
 
@@ -99,11 +124,14 @@ class ValidationProcessEventSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def get_username(self, obj):
-    # Retrieve the username of the user associated with the event
+        # Retrieve the username of the user associated with the event
         return obj.user.username if obj.user else None
 
 
 class ValidationProcessSerializer(serializers.ModelSerializer):
+    """
+    The serializer for the ValidationProcess model.
+    """
     course = CourseSerializer(read_only=True)
     categories = CourseCategorySerializer(many=True, read_only=True)
     organization = OrganizationSerializer(read_only=True)
@@ -115,7 +143,6 @@ class ValidationProcessSerializer(serializers.ModelSerializer):
     validation_body_id = serializers.IntegerField(write_only=True)
     category_ids = serializers.ListField(child=serializers.IntegerField(), write_only=True)
     comment = serializers.CharField(write_only=True)
-    
 
     class Meta:
         model = ValidationProcess
@@ -157,10 +184,10 @@ class ValidationProcessSerializer(serializers.ModelSerializer):
 
     def create_event(self, data) -> None:
         ValidationProcessEvent.objects.create(
-            validation_process = data.get("validation_process"),
-            status = data.get("status"),
-            comment = data.get("comment"),
-            user = data.get("user")
+            validation_process=data.get("validation_process"),
+            status=data.get("status"),
+            comment=data.get("comment"),
+            user=data.get("user")
         )
 
     def create(self, validated_data):

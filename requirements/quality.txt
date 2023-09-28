@@ -8,15 +8,29 @@ asgiref==3.7.2
     # via
     #   -r requirements/test.txt
     #   django
-astroid==2.15.6
+astroid==2.15.8
     # via
     #   pylint
     #   pylint-celery
-click==8.1.6
+certifi==2023.7.22
+    # via
+    #   -r requirements/test.txt
+    #   requests
+cffi==1.15.1
+    # via
+    #   -r requirements/test.txt
+    #   cryptography
+    #   pynacl
+charset-normalizer==3.2.0
+    # via
+    #   -r requirements/test.txt
+    #   requests
+click==8.1.7
     # via
     #   -r requirements/test.txt
     #   click-log
     #   code-annotations
+    #   edx-django-utils
     #   edx-lint
 click-log==0.4.0
     # via edx-lint
@@ -24,23 +38,82 @@ code-annotations==1.5.0
     # via
     #   -r requirements/test.txt
     #   edx-lint
-coverage[toml]==7.2.7
+coverage[toml]==7.3.1
     # via
     #   -r requirements/test.txt
     #   pytest-cov
+cryptography==41.0.4
+    # via
+    #   -r requirements/test.txt
+    #   pyjwt
 dill==0.3.7
     # via pylint
-django==3.2.20
+django==3.2.21
     # via
     #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -r requirements/test.txt
+    #   django-crum
+    #   django-model-utils
+    #   django-waffle
+    #   djangorestframework
+    #   drf-jwt
+    #   edx-django-utils
+    #   edx-drf-extensions
+    #   edx-organizations
     #   openedx-filters
+django-crum==0.7.9
+    # via
+    #   -r requirements/test.txt
+    #   edx-django-utils
+django-model-utils==4.3.1
+    # via
+    #   -r requirements/test.txt
+    #   edx-organizations
+django-simple-history==3.0.0
+    # via
+    #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
+    #   -r requirements/test.txt
+    #   edx-organizations
+django-waffle==4.0.0
+    # via
+    #   -r requirements/test.txt
+    #   edx-django-utils
+    #   edx-drf-extensions
+djangorestframework==3.14.0
+    # via
+    #   -r requirements/test.txt
+    #   drf-jwt
+    #   edx-drf-extensions
+    #   edx-organizations
+drf-jwt==1.19.2
+    # via
+    #   -r requirements/test.txt
+    #   edx-drf-extensions
+edx-django-utils==5.7.0
+    # via
+    #   -r requirements/test.txt
+    #   edx-drf-extensions
+edx-drf-extensions==8.10.0
+    # via
+    #   -r requirements/test.txt
+    #   edx-organizations
 edx-lint==5.3.4
     # via -r requirements/quality.in
-exceptiongroup==1.1.2
+edx-opaque-keys==2.5.1
+    # via
+    #   -r requirements/test.txt
+    #   edx-drf-extensions
+    #   edx-organizations
+edx-organizations==6.12.1
+    # via -r requirements/test.txt
+exceptiongroup==1.1.3
     # via
     #   -r requirements/test.txt
     #   pytest
+idna==3.4
+    # via
+    #   -r requirements/test.txt
+    #   requests
 iniconfig==2.0.0
     # via
     #   -r requirements/test.txt
@@ -61,6 +134,10 @@ markupsafe==2.1.3
     #   jinja2
 mccabe==0.7.0
     # via pylint
+newrelic==9.1.0
+    # via
+    #   -r requirements/test.txt
+    #   edx-django-utils
 openedx-filters==1.0.0
     # via -r requirements/test.txt
 packaging==23.1
@@ -71,17 +148,34 @@ pbr==5.11.1
     # via
     #   -r requirements/test.txt
     #   stevedore
+pillow==10.0.1
+    # via
+    #   -r requirements/test.txt
+    #   edx-organizations
 platformdirs==3.10.0
     # via pylint
-pluggy==1.2.0
+pluggy==1.3.0
     # via
     #   -r requirements/test.txt
     #   pytest
+psutil==5.9.5
+    # via
+    #   -r requirements/test.txt
+    #   edx-django-utils
 pycodestyle==2.11.0
     # via -r requirements/quality.in
+pycparser==2.21
+    # via
+    #   -r requirements/test.txt
+    #   cffi
 pydocstyle==6.3.0
     # via -r requirements/quality.in
-pylint==2.17.5
+pyjwt[crypto]==2.8.0
+    # via
+    #   -r requirements/test.txt
+    #   drf-jwt
+    #   edx-drf-extensions
+pylint==2.17.6
     # via
     #   edx-lint
     #   pylint-celery
@@ -95,7 +189,15 @@ pylint-plugin-utils==0.8.2
     # via
     #   pylint-celery
     #   pylint-django
-pytest==7.4.0
+pymongo==3.13.0
+    # via
+    #   -r requirements/test.txt
+    #   edx-opaque-keys
+pynacl==1.5.0
+    # via
+    #   -r requirements/test.txt
+    #   edx-django-utils
+pytest==7.4.2
     # via
     #   -r requirements/test.txt
     #   pytest-cov
@@ -108,14 +210,23 @@ python-slugify==8.0.1
     # via
     #   -r requirements/test.txt
     #   code-annotations
-pytz==2023.3
+pytz==2023.3.post1
     # via
     #   -r requirements/test.txt
     #   django
+    #   djangorestframework
 pyyaml==6.0.1
     # via
     #   -r requirements/test.txt
     #   code-annotations
+requests==2.31.0
+    # via
+    #   -r requirements/test.txt
+    #   edx-drf-extensions
+semantic-version==2.10.0
+    # via
+    #   -r requirements/test.txt
+    #   edx-drf-extensions
 six==1.16.0
     # via edx-lint
 snowballstemmer==2.2.0
@@ -128,6 +239,8 @@ stevedore==5.1.0
     # via
     #   -r requirements/test.txt
     #   code-annotations
+    #   edx-django-utils
+    #   edx-opaque-keys
 text-unidecode==1.3
     # via
     #   -r requirements/test.txt
@@ -140,11 +253,16 @@ tomli==2.0.1
     #   pytest
 tomlkit==0.12.1
     # via pylint
-typing-extensions==4.7.1
+typing-extensions==4.8.0
     # via
     #   -r requirements/test.txt
     #   asgiref
     #   astroid
+    #   edx-opaque-keys
     #   pylint
+urllib3==2.0.5
+    # via
+    #   -r requirements/test.txt
+    #   requests
 wrapt==1.15.0
     # via astroid

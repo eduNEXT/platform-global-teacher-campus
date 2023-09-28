@@ -2,21 +2,23 @@
 Database models for platform_global_teacher_campus.
 """
 
+from django.contrib.auth import get_user_model
 from django.db import models
+from organizations.models import Organization
+
+from platform_global_teacher_campus.edxapp_wrapper.course_roles import get_course_access_role, get_course_staff_role
 from platform_global_teacher_campus.edxapp_wrapper.courses import get_course_overview
-from platform_global_teacher_campus.edxapp_wrapper.users import get_user_model
-from platform_global_teacher_campus.edxapp_wrapper.organizations import get_organization_model
-from platform_global_teacher_campus.edxapp_wrapper.course_roles import get_course_staff_role
-from platform_global_teacher_campus.edxapp_wrapper.course_access_role import get_course_access_role
 
 CourseOverview = get_course_overview()
 User = get_user_model()
-Organization = get_organization_model()
 CourseStaffRole = get_course_staff_role()
 CourseAccessRole = get_course_access_role()
 
 
 class CourseCategory(models.Model):
+    """
+    TODO:.
+    """
     name = models.TextField()
     parent_category = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL)
 
@@ -27,9 +29,13 @@ class CourseCategory(models.Model):
 
     class Meta:
         verbose_name_plural = "Course Categories"
+        app_label = "platform_global_teacher_campus"
 
 
 class ValidationBody(models.Model):
+    """
+    TODO:.
+    """
     validators = models.ManyToManyField(User, related_name="validation_bodies")
     name = models.TextField()
     admin_notes = models.TextField(default="")
@@ -44,14 +50,27 @@ class ValidationBody(models.Model):
 
     class Meta:
         verbose_name_plural = "Validation Bodies"
+        app_label = "platform_global_teacher_campus"
 
 
-class ValidationProcess(models.Model):
+class ValidationProcessBase(models.Model):
+    """
+    TODO:.
+    """
     course = models.OneToOneField(CourseOverview, on_delete=models.SET_NULL, null=True)
     categories = models.ManyToManyField(CourseCategory)
     organization = models.ForeignKey(Organization, on_delete=models.SET_NULL, null=True)
     current_validation_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     validation_body = models.ForeignKey(ValidationBody, on_delete=models.SET_NULL, null=True)
+
+    class Meta:
+        abstract = True
+
+
+class ValidationProcess(ValidationProcessBase):
+    """
+    TODO:.
+    """
 
     @classmethod
     def get_from_course_id(cls, course_id):
@@ -79,9 +98,13 @@ class ValidationProcess(models.Model):
 
     class Meta:
         verbose_name_plural = "Validation Processes"
+        app_label = "platform_global_teacher_campus"
 
 
 class ValidationRejectionReason(models.Model):
+    """
+    TODO:.
+    """
     name = models.CharField(max_length=100)
 
     def __str__(self):
@@ -89,10 +112,14 @@ class ValidationRejectionReason(models.Model):
 
     class Meta:
         verbose_name_plural = "Validation Rejection Reasons"
+        app_label = "platform_global_teacher_campus"
 
 
 class ValidationProcessEvent(models.Model):
-    class StatusChoices(models.TextChoices):
+    """
+    TODO:.
+    """
+    class StatusChoices(models.TextChoices):    # pylint: disable=missing-class-docstring
         SUBMITTED = "subm", "Submitted"
         IN_REVIEW = "revi", "In Review"
         DRAFT = "drft", "Draft"
@@ -101,7 +128,7 @@ class ValidationProcessEvent(models.Model):
         CANCELLED = "cncl", "Cancelled"
         EXEMPT = "exmp", "Exempt"
 
-    class RoleChoices(models.TextChoices):
+    class RoleChoices(models.TextChoices):  # pylint: disable=missing-class-docstring
         BETA = "beta", "beta"
         INSTRUCTOR = "instructor", "instructor"
         STAFF = "staff", "staff"
@@ -144,8 +171,11 @@ class ValidationProcessEvent(models.Model):
                 cls.StatusChoices.DISAPPROVED,
             ])
             if status == ValidationProcessEvent.StatusChoices.IN_REVIEW:
-                CourseAccessRole.objects.create(user=user, course_id=validation_process.course.id, org=validation_process.organization.name, role=cls.RoleChoices.STAFF)
-            
+                CourseAccessRole.objects.create(
+                    user=user,
+                    course_id=validation_process.course.id,
+                    org=validation_process.organization.name,
+                    role=cls.RoleChoices.STAFF)
 
         return status in allowed_status
 
@@ -176,9 +206,13 @@ class ValidationProcessEvent(models.Model):
 
     class Meta:
         verbose_name_plural = "Validation Process Events"
+        app_label = "platform_global_teacher_campus"
 
 
 class ValidationRules(models.Model):
+    """
+    TODO:.
+    """
     class PermissionTypeChoices(models.TextChoices):
         """
         Org Excluded: No validation process
@@ -199,19 +233,25 @@ class ValidationRules(models.Model):
     is_active = models.BooleanField()
 
     def __str__(self):
-        permission_type_display = dict(ValidationRules.PermissionTypeChoices.choices).get(self.permission_type, "Unknown")
+        permission_type_display = dict(
+            ValidationRules.PermissionTypeChoices.choices).get(
+            self.permission_type, "Unknown")
 
         if self.permission_type in ["org_excluded", "org_exempt"]:
             return f"{permission_type_display} - {self.organization}"
 
-        if self.permission_type == "user_exempt":
+        elif self.permission_type == "user_exempt":
             return f"{permission_type_display} - {self.user} in {self.organization}"
 
-        if self.permission_type == "vb_exempt":
+        elif self.permission_type == "vb_exempt":
             return f"{permission_type_display} - {self.validation_body} in {self.organization}"
+
+        else:
+            return f"{permission_type_display}"
 
     class Meta:
         verbose_name_plural = "Validation Rules"
+        app_label = "platform_global_teacher_campus"
 
 
 class ValidationStatusMessage(models.Model):
@@ -227,8 +267,8 @@ class ValidationStatusMessage(models.Model):
 
     def __str__(self):
         return self.get_status_display()
-    
-    def get_the_status_message_by_course_id(course_id):
+
+    def get_the_status_message_by_course_id(course_id):  # pylint: disable=no-self-argument
         # Info to be returned
         course_status = ""
         status_message = ""
@@ -251,3 +291,6 @@ class ValidationStatusMessage(models.Model):
             "message": status_message,
             "button": status_button
         }
+
+    class Meta:
+        app_label = "platform_global_teacher_campus"

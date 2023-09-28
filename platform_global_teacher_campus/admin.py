@@ -1,12 +1,17 @@
+"""
+Define the model tables to be shown in Django Admin.
+"""
+
 from django.contrib import admin
+
 from .models import (
-    ValidationBody,
     CourseCategory,
+    ValidationBody,
     ValidationProcess,
-    ValidationRejectionReason,
     ValidationProcessEvent,
+    ValidationRejectionReason,
     ValidationRules,
-    ValidationStatusMessage
+    ValidationStatusMessage,
 )
 
 
@@ -29,8 +34,10 @@ class ValidationRulesAdmin(admin.ModelAdmin):
 class CourseCategoryAdmin(admin.ModelAdmin):
     raw_id_fields = ('parent_category', )
 
+
 class ValidationStatusMessageAdmin(admin.ModelAdmin):
     list_display = ('status', 'message', 'updated_at', )
+
 
 admin.site.register(ValidationBody, ValidationBodyAdmin)
 admin.site.register(CourseCategory, CourseCategoryAdmin)
