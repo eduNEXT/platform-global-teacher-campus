@@ -87,6 +87,7 @@ def submit_validation_process(request, course_id):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 def create_validation_process_event(validation_process, new_status, comment, user, reason_id):
     return ValidationProcessEvent.objects.create(
         validation_process=validation_process,
@@ -95,6 +96,7 @@ def create_validation_process_event(validation_process, new_status, comment, use
         user=user,
         reason_id=reason_id
     )
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -149,7 +151,6 @@ def update_validation_process_state(request, course_id):
         user=request.user,
         reason_id=request.data.get("reason")
     )
-
 
     return Response(ValidationProcessEventSerializer(process_event).data, status=status.HTTP_201_CREATED)
 
