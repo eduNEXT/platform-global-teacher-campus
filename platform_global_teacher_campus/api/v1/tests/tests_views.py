@@ -4,8 +4,10 @@ Tests for the `platform-global-teacher-campus` models module.
 """
 
 from unittest.mock import patch
+
 import requests
 from rest_framework import status
+
 from platform_global_teacher_campus.api.v1.views import create_validation_process_event  # pylint: disable=unused-import
 
 
