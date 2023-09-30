@@ -193,7 +193,7 @@ def get_validation_processes(request):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     # Check the validation processes of the courses to which a user has access due to their role in the courses.
-    course_access_roles = list(CourseAccessRole.objects.filter(user=user))
+    course_access_roles = list(CourseAccessRole.objects.filter(user=user).exclude(course_id=None))
     course_accesses = [course_access.course_id for course_access in course_access_roles]
     query_course_access = ValidationProcess.objects.filter(course__in=course_accesses)
 
