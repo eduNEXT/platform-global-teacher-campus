@@ -17,7 +17,8 @@ CourseAccessRole = get_course_access_role()
 
 class CourseCategory(models.Model):
     """
-    TODO:.
+    This model allows you to have categories for the courses,
+    that will be associated when you create a ValidationProcess.
     """
     name = models.TextField()
     parent_category = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL)
@@ -34,7 +35,7 @@ class CourseCategory(models.Model):
 
 class ValidationBody(models.Model):
     """
-    TODO:.
+    This model groups users who can validate courses.
     """
     validators = models.ManyToManyField(User, related_name="validation_bodies")
     name = models.TextField()
@@ -55,7 +56,7 @@ class ValidationBody(models.Model):
 
 class ValidationProcessBase(models.Model):
     """
-    TODO:.
+    This abstract model is the base of the validation process model.
     """
     course = models.OneToOneField(CourseOverview, on_delete=models.SET_NULL, null=True)
     categories = models.ManyToManyField(CourseCategory)
@@ -69,7 +70,7 @@ class ValidationProcessBase(models.Model):
 
 class ValidationProcess(ValidationProcessBase):
     """
-    TODO:.
+    Model to allocate the validation processes.
     """
 
     @classmethod
@@ -103,7 +104,7 @@ class ValidationProcess(ValidationProcessBase):
 
 class ValidationRejectionReason(models.Model):
     """
-    TODO:.
+    Model to allocate the rejection reasons when a validator disapproves a process.
     """
     name = models.CharField(max_length=100)
 
@@ -117,7 +118,7 @@ class ValidationRejectionReason(models.Model):
 
 class ValidationProcessEvent(models.Model):
     """
-    TODO:.
+    This model registers all events for the validation process.
     """
     class StatusChoices(models.TextChoices):    # pylint: disable=missing-class-docstring
         SUBMITTED = "subm", "Submitted"
@@ -211,7 +212,7 @@ class ValidationProcessEvent(models.Model):
 
 class ValidationRules(models.Model):
     """
-    TODO:.
+    To store the rules and permissions the user, validation, and organization have.
     """
     class PermissionTypeChoices(models.TextChoices):
         """
