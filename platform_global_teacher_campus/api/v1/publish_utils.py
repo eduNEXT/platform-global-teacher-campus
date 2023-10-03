@@ -60,7 +60,7 @@ class Richie:
         }
 
         response = requests.post(
-            settings.RICHIE_COURSE_HOOK["url"],
+            settings.RICHIE_COURSE_HOOK["create_endpoint"],
             json=data,
             headers={"Authorization": self.get_authorization_header(data=data)},
             timeout=30,
@@ -79,7 +79,7 @@ class Richie:
         data = self.get_sync_data(course_key)
         try:
             response = requests.post(
-                settings.RICHIE_COURSE_HOOK["url"],
+                settings.RICHIE_COURSE_HOOK["sync_endpoint"],
                 json=data,
                 headers={"Authorization": self.get_authorization_header(data=data)},
                 timeout=settings.RICHIE_COURSE_HOOK["timeout"],
