@@ -45,9 +45,9 @@ ROOT_URLCONF = 'platform_global_teacher_campus.urls'
 SECRET_KEY = 'insecure-secret-key'
 
 MIDDLEWARE = (
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
 )
 
 TEMPLATES = [{
