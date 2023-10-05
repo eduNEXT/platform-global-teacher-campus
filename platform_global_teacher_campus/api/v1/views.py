@@ -27,6 +27,7 @@ from platform_global_teacher_campus.models import (
     ValidationProcess,
     ValidationProcessEvent,
     ValidationRejectionReason,
+    Organization,
 )
 
 from .publish_utils import publish_course
@@ -244,4 +245,21 @@ def get_rejection_reasons(request):
         return Response(data={}, status=status.HTTP_200_OK)
 
     serializer = ValidationRejectionReasonSerializer(rejection_reasons, many=True)
+    return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JwtAuthentication])
+def get_validation_bodies_by_course(request, course_id):
+    try:
+        course = CourseOverview.objects.get(id=course_id)
+    except CourseOverview.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    organization_of_course = course.org
+    organization_id = Organization.objects.get(name=organization_of_course).id
+    validation_bodies_by_org = ValidationBody.objects.filter(organizations=organization_id)
+    serializer = ValidationBodySerializer(validation_bodies_by_org, many=True)
+
     return Response(data=serializer.data, status=status.HTTP_200_OK)
