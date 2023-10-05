@@ -5,13 +5,20 @@ import json
 import logging
 
 from opaque_keys.edx.keys import CourseKey
-from django.conf import settings
+
 from platform_global_teacher_campus.edxapp_wrapper.force_publish_command import (
     get_course_versions_branches,
     get_force_publish_course_command,
     get_mixed_module_store,
     get_modulestore,
 )
+
+from django.conf import settings
+
+DraftVersioningModuleStore = get_force_publish_course_command()
+modulestore = get_modulestore()
+MixedModuleStore = get_mixed_module_store()
+course_versions_branches = get_course_versions_branches()
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +36,7 @@ class SyncRichieCourseError(Exception):
 class Richie:
     @staticmethod
     def get_sync_data(course_key) -> dict:
-        course = get_modulestore().get_course(course_key)
+        course = modulestore().get_course(course_key)
         enrollment_start = course.enrollment_start and course.enrollment_start.isoformat()
         enrollment_end = course.enrollment_end and course.enrollment_end.isoformat()
         return {
@@ -52,7 +59,7 @@ class Richie:
         return f"SIG-HMAC-SHA256 {signature}"
 
     def create_course(self, course_key) -> None:
-        course = get_modulestore().get_course(course_key)
+        course = modulestore().get_course(course_key)
         data = {
             "organization_code": course.org,
             "course_code": course.display_number_with_default,
@@ -75,7 +82,7 @@ class Richie:
             )
 
     def sync_course(self, course_key):
-        course = get_modulestore().get_course(course_key)
+        course = modulestore().get_course(course_key)
         data = self.get_sync_data(course_key)
         try:
             response = requests.post(
@@ -95,23 +102,17 @@ class Richie:
 
 def publish_course(course_id, user):
     course_key = CourseKey.from_string(str(course_id))
-    versions = get_course_versions_branches(str(course_id))
-    owning_store = get_modulestore()._get_modulestore_for_courselike(course_key)    # pylint: disable=protected-access
+    versions = course_versions_branches(str(course_id))
+    owning_store = modulestore()._get_modulestore_for_courselike(course_key)    # pylint: disable=protected-access
 
     # Create course in Richie
     richie = Richie()
-    try:
-        richie.create_course(course_key=course_key)
-    except CreateRichieCourseError:
-        return f"Error! Could not create course {course_key} in Richie."
+    richie.create_course(course_key=course_key)
 
     updated_versions = owning_store.force_publish_course(course_key, user, 'commit')
     if updated_versions:
         # Sync course in Richie
-        try:
-            richie.sync_course(course_key=course_key)
-        except SyncRichieCourseError:
-            return f"Error! Could not syncronize course {course_key} with Richie."
+        richie.sync_course(course_key=course_key)
 
         # if publish and draft were different
         if versions['published-branch'] != versions['draft-branch']:
