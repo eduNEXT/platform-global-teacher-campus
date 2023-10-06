@@ -25,7 +25,9 @@ urlpatterns = [
     path('validation-processes/', views.get_validation_processes, name="get-validation-processes"),
     path('user-info/', views.user_info, name="get_user_info"),
     path('rejection-reasons/', views.get_rejection_reasons, name="get-rejection-reasons"),
-    path('validation-bodies/<str:course_id>/', views.get_validation_bodies_by_course, name="get-validation-bodies-by-course"),
+    path('validation-bodies/<str:course_id>/',
+         views.get_validation_bodies_by_course,
+         name="get-validation-bodies-by-course"),
     path('', include((router.urls, app_name), namespace="pgtc-api")),
 
 ]
