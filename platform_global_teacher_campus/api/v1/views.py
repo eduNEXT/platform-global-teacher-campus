@@ -23,11 +23,11 @@ from platform_global_teacher_campus.edxapp_wrapper.course_roles import (
 from platform_global_teacher_campus.edxapp_wrapper.courses import get_course_overview
 from platform_global_teacher_campus.models import (
     CourseCategory,
+    Organization,
     ValidationBody,
     ValidationProcess,
     ValidationProcessEvent,
     ValidationRejectionReason,
-    Organization,
 )
 
 from .publish_utils import publish_course
