@@ -6,17 +6,17 @@ import hashlib
 import hmac
 import json
 import logging
-from opaque_keys.edx.keys import CourseKey
 
 import requests
+from django.conf import settings
+from opaque_keys.edx.keys import CourseKey
+
 from platform_global_teacher_campus.edxapp_wrapper.force_publish_command import (
     get_course_versions_branches,
     get_force_publish_course_command,
     get_mixed_module_store,
     get_modulestore,
 )
-
-from django.conf import settings
 
 DraftVersioningModuleStore = get_force_publish_course_command()
 modulestore = get_modulestore()
@@ -99,8 +99,8 @@ class Richie:
                 raise SyncRichieCourseError(
                     f"Could not synchronize course {course.id} with Richie. Response: {response.content.decode()}")
             logger.info(f"Successfully synchronized course {course.id} with Richie")
-        except requests.exceptions.Timeout:
-            raise SyncRichieCourseError(f"Could not synchronize course {course.id} with Richie. Response timeout")
+        except requests.exceptions.Timeout as exc:
+            raise SyncRichieCourseError(f"Timeout: Couldnt synchronize course {course.id} with Richie.") from exc
 
 
 def publish_course(course_id, user):
