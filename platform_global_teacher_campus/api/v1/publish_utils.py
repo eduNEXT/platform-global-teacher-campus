@@ -1,11 +1,14 @@
-import requests
+"""
+Utils for publish a course.
+"""
+
 import hashlib
 import hmac
 import json
 import logging
-
 from opaque_keys.edx.keys import CourseKey
 
+import requests
 from platform_global_teacher_campus.edxapp_wrapper.force_publish_command import (
     get_course_versions_branches,
     get_force_publish_course_command,
@@ -25,15 +28,15 @@ logger = logging.getLogger(__name__)
 
 class CreateRichieCourseError(Exception):
     """Error trying to create a new Course in Richie."""
-    pass
 
 
 class SyncRichieCourseError(Exception):
-    """Error trying to sync a course with Richie"""
-    pass
+    """Error trying to sync a course with Richie."""
 
 
 class Richie:
+    """Class to manage richie sync methods."""
+
     @staticmethod
     def get_sync_data(course_key) -> dict:
         course = modulestore().get_course(course_key)
@@ -93,9 +96,9 @@ class Richie:
             )
 
             if response.status_code >= 400:
-                raise SyncRichieCourseError(f"Could not synchronize course {course.id} with Richie. Response: {response.content.decode()}")
-            else:
-                logger.info(f"Successfully synchronized course {course.id} with Richie")
+                raise SyncRichieCourseError(
+                    f"Could not synchronize course {course.id} with Richie. Response: {response.content.decode()}")
+            logger.info(f"Successfully synchronized course {course.id} with Richie")
         except requests.exceptions.Timeout:
             raise SyncRichieCourseError(f"Could not synchronize course {course.id} with Richie. Response timeout")
 
