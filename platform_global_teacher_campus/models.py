@@ -6,12 +6,17 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from organizations.models import Organization
 
-from platform_global_teacher_campus.edxapp_wrapper.course_roles import get_course_access_role, get_course_staff_role
+from platform_global_teacher_campus.edxapp_wrapper.course_roles import (
+    get_course_access_role,
+    get_course_staff_role,
+    get_global_staff
+)
 from platform_global_teacher_campus.edxapp_wrapper.courses import get_course_overview
 
 CourseOverview = get_course_overview()
 User = get_user_model()
 CourseStaffRole = get_course_staff_role()
+AdminRole = get_global_staff()
 CourseAccessRole = get_course_access_role()
 
 
@@ -87,7 +92,7 @@ class ValidationProcess(ValidationProcessBase):
 
         course = CourseOverview.objects.get(id=course_id)
         if course:
-            return CourseStaffRole(course.id).has_user(user)
+            return CourseStaffRole(course.id).has_user(user) or AdminRole(course.id).has_user(user)
         return False
 
     def is_validator(self, user):
