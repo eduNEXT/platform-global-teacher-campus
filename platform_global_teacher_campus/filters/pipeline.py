@@ -10,6 +10,7 @@ from organizations.models import Organization
 from platform_global_teacher_campus.edxapp_wrapper.courses import get_course_overview
 from platform_global_teacher_campus.edxapp_wrapper.force_publish import get_force_publish_course
 from platform_global_teacher_campus.models import ValidationProcess, ValidationProcessEvent, ValidationRules
+from platform_global_teacher_campus.unable_publish_or_update import UnablePublishOrUpdate
 
 log = logging.getLogger(__name__)
 
@@ -95,12 +96,8 @@ class ModifyRequestToBlockCourse(PipelineStep):
             ).exists()
 
             if not is_status_draft:
-                request.json['data'] = None
-                log.info("Can not edit a couse. status is not draft.")
-                return request
+                raise UnablePublishOrUpdate("Can not edit a couse. status is not draft.")
 
         # Disable publish button
         if "publish" in request.json and request.json["publish"] == "make_public":
-            request.json["publish"] = None
-            log.info("Can not Publish the course %s", course)
-            return request
+            raise UnablePublishOrUpdate("Can not edit a couse. status is not draft.")

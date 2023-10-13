@@ -23,6 +23,7 @@ from platform_global_teacher_campus.edxapp_wrapper.course_roles import (
 from platform_global_teacher_campus.edxapp_wrapper.courses import get_course_overview
 from platform_global_teacher_campus.models import (
     CourseCategory,
+    Organization,
     ValidationBody,
     ValidationProcess,
     ValidationProcessEvent,
@@ -203,7 +204,7 @@ def get_validation_processes(request):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     # Check the validation processes of the courses to which a user has access due to their role in the courses.
-    course_access_roles = list(CourseAccessRole.objects.filter(user=user))
+    course_access_roles = list(CourseAccessRole.objects.filter(user=user).exclude(course_id=None))
     course_accesses = [course_access.course_id for course_access in course_access_roles]
     query_course_access = ValidationProcess.objects.filter(course__in=course_accesses)
 
@@ -254,4 +255,21 @@ def get_rejection_reasons(request):
         return Response(data={}, status=status.HTTP_200_OK)
 
     serializer = ValidationRejectionReasonSerializer(rejection_reasons, many=True)
+    return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JwtAuthentication])
+def get_validation_bodies_by_course(request, course_id):
+    try:
+        course = CourseOverview.objects.get(id=course_id)
+    except CourseOverview.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    organization_of_course = course.org
+    organization_id = Organization.objects.get(name=organization_of_course).id
+    validation_bodies_by_org = ValidationBody.objects.filter(organizations=organization_id)
+    serializer = ValidationBodySerializer(validation_bodies_by_org, many=True)
+
     return Response(data=serializer.data, status=status.HTTP_200_OK)

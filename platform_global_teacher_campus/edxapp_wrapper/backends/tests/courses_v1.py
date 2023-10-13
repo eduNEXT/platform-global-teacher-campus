@@ -9,10 +9,9 @@ class CourseOverviewTestModel(models.Model):
     """
     Model for tests.
     """
-    def __init__(self, course_id) -> None:
-        self.course_id = course_id
-        super().__init__()
-
+    id = models.AutoField(primary_key=True)
+    org = models.CharField(max_length=100)  # Adjust the field as needed
+    display_name= models.CharField(max_length=100)
 
 def get_course_overview():
     """
