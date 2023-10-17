@@ -9,7 +9,7 @@ from organizations.models import Organization
 from platform_global_teacher_campus.edxapp_wrapper.course_roles import (
     get_course_access_role,
     get_course_staff_role,
-    get_global_staff
+    get_global_staff,
 )
 from platform_global_teacher_campus.edxapp_wrapper.courses import get_course_overview
 
