@@ -2,10 +2,11 @@
 Tests for the happy path for a course validation.
 """
 
-from unittest.mock import patch
 import json
+from unittest.mock import patch
+
 from django.urls import reverse
-from rest_framework.test import APITestCase, APIClient
+from rest_framework.test import APIClient, APITestCase
 
 from platform_global_teacher_campus.api.v1.tests import factories, utils
 
