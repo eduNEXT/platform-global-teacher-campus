@@ -5,14 +5,15 @@ factories of mocked data for tests
 from django.contrib.auth import get_user_model
 from factory import Faker
 from factory.django import DjangoModelFactory
-
 from organizations.models import Organization
+
 from platform_global_teacher_campus.edxapp_wrapper.courses import get_course_overview
 from platform_global_teacher_campus.models import (
     ValidationBody,
     ValidationProcess,
     ValidationProcessEvent,
-    ValidationRules)
+    ValidationRules,
+)
 
 CourseOverview = get_course_overview()
 User = get_user_model()
