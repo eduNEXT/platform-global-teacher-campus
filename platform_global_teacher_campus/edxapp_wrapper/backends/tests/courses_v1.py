@@ -11,7 +11,8 @@ class CourseOverviewTestModel(models.Model):
     """
     id = models.AutoField(primary_key=True)
     org = models.CharField(max_length=100)  # Adjust the field as needed
-    display_name= models.CharField(max_length=100)
+    display_name = models.CharField(max_length=100)
+
 
 def get_course_overview():
     """
