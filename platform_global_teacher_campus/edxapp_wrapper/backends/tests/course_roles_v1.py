@@ -20,7 +20,7 @@ def get_course_access_role():
 
     # Set the filter to return the queryset mock
     mock_objects.filter.return_value = mock_queryset
-    
+
     mock_role.objects = mock_objects
     return mock_role
 

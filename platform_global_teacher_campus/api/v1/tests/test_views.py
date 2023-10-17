@@ -1,14 +1,19 @@
+"""
+Tests for the happy path for a course validation.
+"""
+
 from unittest.mock import patch
+import json
 from django.urls import reverse
 from rest_framework.test import APITestCase, APIClient
 
 from platform_global_teacher_campus.api.v1.tests import factories, utils
 
 
-import json
-
-
 class TestValidationProcessFlow(APITestCase):
+    """
+    Class for testing the basic validation process for a course.
+    """
 
     def setUp(self) -> None:
         # Create a Validation Body with a validator
@@ -88,7 +93,7 @@ class TestValidationProcessFlow(APITestCase):
             current_validation_user=self.validator,
             validation_body=self.validation_body,
         )
-        validation_process_event = factories.ValidationProcessEventFactory.create(
+        validation_process_event = factories.ValidationProcessEventFactory.create(  # pylint: disable=unused-variable
             validation_process=validation_process,
         )
 
