@@ -37,14 +37,15 @@ class TestValidationProcessFlow(APITestCase):
         )
 
         # Create a course
-        self.course_id = '1'
-        self.course_id_exempt = '2'
+        self.course_id = 'course-v1:edX+DemoX+Demo_Course'
+        self.course_id_exempt = 'course-v1:edX+ExemptX+Exempt_Course'
 
         self.course = factories.CourseFactory.create(
+            id=self.course_id,
             org='comp'
         )
         self.course_exempt = factories.CourseFactory.create(
-            id=2,
+            id=self.course_id_exempt,
             org='compex'
         )
 
