@@ -16,12 +16,12 @@ certifi==2023.7.22
     # via
     #   -r requirements/test.txt
     #   requests
-cffi==1.15.1
+cffi==1.16.0
     # via
     #   -r requirements/test.txt
     #   cryptography
     #   pynacl
-charset-normalizer==3.2.0
+charset-normalizer==3.3.0
     # via
     #   -r requirements/test.txt
     #   requests
@@ -38,7 +38,7 @@ code-annotations==1.5.0
     # via
     #   -r requirements/test.txt
     #   edx-lint
-coverage[toml]==7.3.1
+coverage[toml]==7.3.2
     # via
     #   -r requirements/test.txt
     #   pytest-cov
@@ -48,7 +48,7 @@ cryptography==41.0.4
     #   pyjwt
 dill==0.3.7
     # via pylint
-django==3.2.21
+django==3.2.22
     # via
     #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -r requirements/test.txt
@@ -110,6 +110,12 @@ exceptiongroup==1.1.3
     # via
     #   -r requirements/test.txt
     #   pytest
+factory-boy==3.3.0
+    # via -r requirements/test.txt
+faker==19.6.2
+    # via
+    #   -r requirements/test.txt
+    #   factory-boy
 idna==3.4
     # via
     #   -r requirements/test.txt
@@ -140,7 +146,7 @@ newrelic==9.1.0
     #   edx-django-utils
 openedx-filters==1.0.0
     # via -r requirements/test.txt
-packaging==23.1
+packaging==23.2
     # via
     #   -r requirements/test.txt
     #   pytest
@@ -152,7 +158,7 @@ pillow==10.0.1
     # via
     #   -r requirements/test.txt
     #   edx-organizations
-platformdirs==3.10.0
+platformdirs==3.11.0
     # via pylint
 pluggy==1.3.0
     # via
@@ -175,7 +181,7 @@ pyjwt[crypto]==2.8.0
     #   -r requirements/test.txt
     #   drf-jwt
     #   edx-drf-extensions
-pylint==2.17.6
+pylint==2.17.7
     # via
     #   edx-lint
     #   pylint-celery
@@ -206,6 +212,10 @@ pytest-cov==4.1.0
     # via -r requirements/test.txt
 pytest-django==4.5.2
     # via -r requirements/test.txt
+python-dateutil==2.8.2
+    # via
+    #   -r requirements/test.txt
+    #   faker
 python-slugify==8.0.1
     # via
     #   -r requirements/test.txt
@@ -228,7 +238,10 @@ semantic-version==2.10.0
     #   -r requirements/test.txt
     #   edx-drf-extensions
 six==1.16.0
-    # via edx-lint
+    # via
+    #   -r requirements/test.txt
+    #   edx-lint
+    #   python-dateutil
 snowballstemmer==2.2.0
     # via pydocstyle
 sqlparse==0.4.4
@@ -259,8 +272,9 @@ typing-extensions==4.8.0
     #   asgiref
     #   astroid
     #   edx-opaque-keys
+    #   faker
     #   pylint
-urllib3==2.0.5
+urllib3==2.0.6
     # via
     #   -r requirements/test.txt
     #   requests
