@@ -36,3 +36,11 @@ def get_mixed_module_store():
     """
 
     return MagicMock
+
+
+def get_course_key():
+    """
+    Gets the CourseKey model.
+    """
+
+    return MagicMock

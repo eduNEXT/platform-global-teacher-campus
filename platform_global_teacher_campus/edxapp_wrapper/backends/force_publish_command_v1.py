@@ -3,6 +3,7 @@ Backend for Force Publish Course Command.
 """
 
 from cms.djangoapps.contentstore.management.commands.utils import get_course_versions  # pylint: disable=import-error
+from opaque_keys.edx.keys import CourseKey
 from xmodule.modulestore.django import modulestore  # pylint: disable=import-error
 from xmodule.modulestore.mixed import MixedModuleStore  # pylint: disable=import-error
 from xmodule.modulestore.split_mongo.split_draft import DraftVersioningModuleStore  # pylint: disable=import-error
@@ -39,3 +40,11 @@ def get_mixed_module_store():
     """
 
     return MixedModuleStore
+
+
+def get_course_key():
+    """
+    Gets the CourseKey model.
+    """
+
+    return CourseKey

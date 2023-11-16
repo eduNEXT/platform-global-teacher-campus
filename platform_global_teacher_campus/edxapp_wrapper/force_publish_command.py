@@ -50,3 +50,14 @@ def get_mixed_module_store():
     backend = import_module(backend_function)
 
     return backend.get_mixed_module_store()
+
+
+def get_course_key():
+    """
+    Gets the CourseKey model.
+    """
+
+    backend_function = settings.FORCE_PUBLISH_COMMAND_BACKEND
+    backend = import_module(backend_function)
+
+    return backend.get_course_key()
